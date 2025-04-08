@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model amenities {
+  ID                     Int                      @id @default(autoincrement())
+  Name                   String                   @db.VarChar(100)
+  camping_spot_amenities camping_spot_amenities[]
+}
+
+model availability {
+  ID             Int          @id @default(autoincrement())
+  CampingSpot_ID Int?
+  Date           DateTime?    @db.Date
+  IsAvailable    Boolean?
+  campingspot    campingspot? @relation(fields: [CampingSpot_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "availability_ibfk_1")
+
+  @@index([CampingSpot_ID], map: "CampingSpot_ID")
+}
+
+model booking {
+  ID             Int          @id @default(autoincrement())
+  User_ID        Int?
+  CampingSpot_ID Int?
+  StartDate      DateTime?    @db.Date
+  EndDate        DateTime?    @db.Date
+  Price          Decimal?     @db.Decimal(10, 2)
+  Status_ID      Int?
+  CreatedAt      DateTime?    @default(now()) @db.DateTime(0)
+  user           user?        @relation(fields: [User_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "booking_ibfk_1")
+  campingspot    campingspot? @relation(fields: [CampingSpot_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "booking_ibfk_2")
+  status         status?      @relation(fields: [Status_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "booking_ibfk_3")
+
+  @@index([CampingSpot_ID], map: "CampingSpot_ID")
+  @@index([Status_ID], map: "Status_ID")
+  @@index([User_ID], map: "User_ID")
+}
+
+model camping_spot_amenities {
+  CampingSpot_ID Int
+  Amenity_ID     Int
+  campingspot    campingspot @relation(fields: [CampingSpot_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "camping_spot_amenities_ibfk_1")
+  amenities      amenities   @relation(fields: [Amenity_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "camping_spot_amenities_ibfk_2")
+
+  @@id([CampingSpot_ID, Amenity_ID])
+  @@index([Amenity_ID], map: "Amenity_ID")
+}
+
+model campingspot {
+  ID                     Int                      @id @default(autoincrement())
+  Owner_ID               Int?
+  Name                   String?                  @db.VarChar(150)
+  Description            String?                  @db.Text
+  Price                  Decimal?                 @db.Decimal(10, 2)
+  MaxGuests              Int?
+  Street                 String?                  @db.VarChar(150)
+  City                   Int?
+  availability           availability[]
+  booking                booking[]
+  camping_spot_amenities camping_spot_amenities[]
+  user                   user?                    @relation(fields: [Owner_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "campingspot_ibfk_1")
+  city                   city?                    @relation(fields: [City], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "campingspot_ibfk_2")
+  reviews                reviews[]
+
+  @@index([City], map: "City")
+  @@index([Owner_ID], map: "Owner_ID")
+}
+
+model city {
+  ID          Int           @id @default(autoincrement())
+  Name        String        @db.VarChar(100)
+  Country_ID  Int?
+  campingspot campingspot[]
+  country     country?      @relation(fields: [Country_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "city_ibfk_1")
+
+  @@index([Country_ID], map: "Country_ID")
+}
+
+model country {
+  ID   Int    @id @default(autoincrement())
+  Name String @db.VarChar(100)
+  city city[]
+}
+
+model reviews {
+  ID             Int          @id @default(autoincrement())
+  User_ID        Int?
+  CampingSpot_ID Int?
+  Rating         Int?
+  Comment        String?      @db.Text
+  CreatedAt      DateTime?    @default(now()) @db.DateTime(0)
+  user           user?        @relation(fields: [User_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "reviews_ibfk_1")
+  campingspot    campingspot? @relation(fields: [CampingSpot_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "reviews_ibfk_2")
+
+  @@index([CampingSpot_ID], map: "CampingSpot_ID")
+  @@index([User_ID], map: "User_ID")
+}
+
+model status {
+  ID      Int       @id @default(autoincrement())
+  Name    String?   @db.VarChar(100)
+  booking booking[]
+}
+
+model user {
+  ID          Int           @id @default(autoincrement())
+  FirstName   String?       @db.VarChar(100)
+  LastName    String?       @db.VarChar(100)
+  Email       String        @unique(map: "Email") @db.VarChar(100)
+  Password    String        @db.VarChar(255)
+  IsAdmin     Boolean?      @default(false)
+  booking     booking[]
+  campingspot campingspot[]
+  reviews     reviews[]
+}
