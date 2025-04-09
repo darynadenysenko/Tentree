@@ -1,9 +1,51 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+const bcrypt = require('bcrypt');
+
+/* GET all users */
+router.get('/', async function(req, res, next) {
+  const data = await prisma.user.findMany();
+  res.json(data);
+});
+
+//POST users
+
+router.post('/', async (req, res, next) => {
+  // Check if a user with the same email already exists
+  const checkUser = await prisma.user.findMany({
+    where: {
+      email: req.body.email
+    }
+  });
+
+  // If a user exists with the same email, return an error message
+  if (checkUser.length > 0) {
+    return res.json({
+      message: "User with this email already exists"
+    });
+  } else {
+    // If no user exists with the same email, create a new user
+    try {
+      // Hash the password before saving 
+      const hashedPassword = await bcrypt.hash(req.body.Password, 10);
+
+      const newUser = await prisma.user.create({
+        data: {
+          email: req.body.Email,
+          password: hashedPassword,  
+          firstName: req.body.FirstName,
+          lastName: req.body.LastName
+        }
+      });
+
+      res.status(201).json(newUser);  
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to create user' });
+    }
+  }
 });
 
 module.exports = router;
