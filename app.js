@@ -22,11 +22,13 @@ const indexRouter = require('./routes/index');
 const spotsRouter = require('./routes/spots');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
+const countriesRouter = require('./routes/countries');
 
 app.use('/', indexRouter);
 app.use('/spots', spotsRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
+app.use('/countries', countriesRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
