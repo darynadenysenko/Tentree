@@ -24,6 +24,8 @@ const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const countriesRouter = require('./routes/countries');
 const amenitiesRouter = require('./routes/amenities');
+const reviewsRouter = require('./routes/reviews');
+
 
 app.use('/', indexRouter);
 app.use('/spots', spotsRouter);
@@ -31,6 +33,7 @@ app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 app.use('/countries', countriesRouter);
 app.use('/amenities', amenitiesRouter);
+app.use('/reviews', reviewsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
