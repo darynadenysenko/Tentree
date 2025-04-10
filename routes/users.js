@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const bcrypt = require('bcrypt');
+const auth = require('./authLogic');
 
 /* GET all users */
 router.get('/', async function(req, res, next) {
@@ -17,7 +17,7 @@ router.post('/', async (req, res, next) => {
   // Check if a user with the same email already exists
   const checkUser = await prisma.user.findMany({
     where: {
-      email: req.body.email
+      Email: req.body.Email
     }
   });
 
@@ -30,7 +30,7 @@ router.post('/', async (req, res, next) => {
     // If no user exists with the same email, create a new user
     try {
       // Hash the password before saving 
-      const hashedPassword = await bcrypt.hash(req.body.Password, 10);
+      const hashedPassword = await auth.hashPassword(req.body.Password);
 
       const newUser = await prisma.user.create({
         data: {

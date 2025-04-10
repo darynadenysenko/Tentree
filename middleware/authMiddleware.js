@@ -1,4 +1,4 @@
-const auth = require('../auth');
+const auth = require('../routes/authLogic');
 
 function authenticateToken(req, res, next) {
 

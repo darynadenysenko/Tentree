@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const auth = require('../auth');
+const auth = require('./authLogic');
 
 // Register route
 router.post('/register', async (req, res) => {
@@ -28,14 +28,14 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { Email, Password } = req.body;
 
-  try {
+  try { 
     const user = await prisma.user.findUnique({ where: { Email } });
     if (!user) return res.status(401).json({ error: 'Invalid credentials.' });
 
     const isValid = await auth.verifyPassword(Password, user.Password);
     if (!isValid) return res.status(401).json({ error: 'Invalid credentials.' });
 
-    const token = auth.generateToken({ id: user.ID, email: user.Email });
+    const token = auth.generateToken(user); // pass full user
     res.json({ token });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -43,4 +43,3 @@ router.post('/login', async (req, res) => {
 });
 
 module.exports = router;
-
