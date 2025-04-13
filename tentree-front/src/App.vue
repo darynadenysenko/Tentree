@@ -1,6 +1,23 @@
 <template>
-  <div class="p-8 text-center">
-    <h1 class="text-3xl font-bold text-blue-600">Tentree Frontend is Ready! 🌲</h1>
+  <div id="app">
+    <LandingPage />
   </div>
 </template>
+
+<script>
+// Import the LandingPage component
+import LandingPage from './components/LandingPage.vue'
+
+export default {
+  name: 'App',
+  components: {
+    LandingPage
+  }
+}
+</script>
+
+<style>
+/* Global styles */
+</style>
+
 
