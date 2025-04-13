@@ -1,23 +1,16 @@
 <template>
   <div id="app">
-    <LandingPage />
+    <!-- Render the current route's component -->
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-// Import the LandingPage component
-import LandingPage from './components/LandingPage.vue'
-
 export default {
   name: 'App',
-  components: {
-    LandingPage
-  }
-}
+};
 </script>
 
-<style>
+<style scoped>
 /* Global styles */
 </style>
-
-

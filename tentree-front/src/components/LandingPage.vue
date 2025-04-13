@@ -11,9 +11,11 @@
 
             <!-- Buttons Section (Right side) -->
             <div class="flex space-x-[10px]">
-                <button class="font-poppins font-semibold px-4 py-1 border border-black text-black bg-transparent hover:bg-[#7D6E47] rounded-[4px]">
-                Find a Spot
+                
+                <button @click="goToLogin" class="font-poppins font-semibold px-4 py-1 border border-black text-black bg-transparent hover:bg-[#7D6E47] rounded-[4px]">
+                    Find a Spot
                 </button>
+                
                 <button class="font-poppins font-semibold px-4 py-1 bg-[#2C3B22] text-white hover:bg-[#7D6E47] rounded-[4px] h-[40px]">
                 List Your Spot
                 </button>
@@ -36,3 +38,14 @@
         </div>
     </div>
 </template>
+<script>
+export default {
+  name: 'LandingPage',
+  methods: {
+    // This method will navigate to the Login Page when the button is clicked
+    goToLogin() {
+      this.$router.push('/login');  
+    }
+  }
+};
+</script>
