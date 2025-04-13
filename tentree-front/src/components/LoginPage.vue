@@ -28,7 +28,7 @@
 
                 <!-- Log In Button -->
                 <div>
-                    <button type="submit" class="w-full py-2 px-4 bg-[#16461A] text-white rounded-md hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+                    <button @click="goToHomePage" type="submit" class="w-full py-2 px-4 bg-[#16461A] text-white rounded-md hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
                         Log In
                     </button>
                 </div>
@@ -37,7 +37,7 @@
                 <div class="mt-4 text-center">
                     <p class="text-sm text-black">
                         Don’t have an account? 
-                        <a href="#" class="text-black hover:text-green-700"> 
+                        <a @click="goToRegistration" href="#" class="text-black hover:text-green-700"> 
                             <u>
                                 Sign up
                             </u>
@@ -48,4 +48,17 @@
         </div>
     </div>
 
-  </template>
+</template>
+<script>
+export default {
+    name: 'LoginPage',
+    methods: {      
+      goToHomePage() {
+        this.$router.push('/home');  
+      },
+      goToRegistration() {
+        this.$router.push('/registration');  
+      },
+    }
+  };
+</script>
