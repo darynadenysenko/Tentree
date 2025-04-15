@@ -119,15 +119,28 @@ export default {
                 Password: this.password,
             }),
         })
-            .then((response) => response.json())
+        .then((response) => response.json())
             .then((data) => {
-                if (data.error) {
-                    this.errorMessage = data.message || 'An error occurred. Please try again!';
-                } else {
-                    this.goToHomePage();  // Redirect to home page on success
-                }
+                if (data.token) {
+                    // Store the token in localStorage
+                    localStorage.setItem('authToken', data.token);
 
+                    // Optionally, store user information as well
+                    localStorage.setItem('userInfo', JSON.stringify(data.user));
+
+                    // Redirect to the home page after successful registration
+                    this.goToHomePage();
+                } else {
+                    this.errorMessage = data.message || 'An error occurred. Please try again!';
+                }
             })
+            .catch((error) => {
+                console.error('Error during registration:', error);
+                this.errorMessage = 'An error occurred. Please try again!';
+            })
+            .finally(() => {
+                this.isSubmitting = false;
+            });
 
         }, 
         goToHomePage() {

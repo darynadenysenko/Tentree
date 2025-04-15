@@ -3,6 +3,8 @@ const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const auth = require('./authLogic');
+const authenticateToken = require('../middleware/authMiddleware');  // Import the middleware
+
 
 // Register route
 router.post('/register', async (req, res) => {
@@ -24,21 +26,39 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login route
+// Login route (Authenticate user and generate token)
 router.post('/login', async (req, res) => {
   const { Email, Password } = req.body;
 
-  try { 
+  try {
+    // Find user by email
     const user = await prisma.user.findUnique({ where: { Email } });
-    if (!user) return res.status(401).json({ error: 'Invalid credentials.' });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid email or password.' });
+    }
 
+    // Verify the password
     const isValid = await auth.verifyPassword(Password, user.Password);
-    if (!isValid) return res.status(401).json({ error: 'Invalid credentials.' });
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid email or password.' });
+    }
 
-    const token = auth.generateToken(user); // pass full user
-    res.json({ token });
+    // Generate the JWT token for the user
+    const token = auth.generateToken(user); // Assuming `generateToken` is implemented in your `authLogic.js`
+
+    // Respond with the token and user info
+    res.json({
+      token,
+      user: {
+        id: user.ID,
+        email: user.Email,
+        firstName: user.FirstName,
+        lastName: user.LastName,
+      }
+    });
+
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'Error logging in: ' + error.message });
   }
 });
 

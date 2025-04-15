@@ -4,6 +4,7 @@ const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const auth = require('./authLogic');
+const authenticateToken = require('../middleware/authMiddleware');  
 
 /* GET all users */
 router.get('/', async function(req, res, next) {
@@ -40,11 +41,39 @@ router.post('/', async (req, res, next) => {
           Password: hashedPassword,  
         }
       });
-
-      res.status(201).json(newUser);  
+      const token = auth.generateToken(newUser); 
+      res.status(201).json({
+        token: token,
+        user: {
+          firstName: newUser.FirstName,
+          lastName: newUser.LastName,
+          email: newUser.Email,
+        }
+      });   
     } catch (error) {
       res.status(500).json({ error: 'Failed to create user' });
     }
+  }
+});
+
+// Route to get the logged-in user's information
+router.get('/home', authenticateToken, async (req, res) => {
+  try {
+    // Retrieve user info based on the ID from the JWT token
+    const user = await prisma.user.findUnique({ where: { ID: req.user.id } });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Send back user data (first name, last name, email)
+    res.json({
+      firstName: user.FirstName,
+      lastName: user.LastName,
+      email: user.Email,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

@@ -5,6 +5,7 @@ import LandingPage from '../components/LandingPage.vue';
 import LoginPage from '../components/LoginPage.vue'; 
 import RegistrationPage from '@/components/RegistrationPage.vue';
 import HomePage from '@/components/HomePage.vue';
+import ProfilePage from '@/components/ProfilePage.vue';
 
 // Define routes
 
@@ -26,9 +27,14 @@ const routes = [
   },
   {
     path: '/home',
-    name: 'HomPage',
+    name: 'HomePage',
     component: HomePage,
   },
+  {
+    path: '/profile',
+    name: 'ProfilePage',
+    component: ProfilePage,
+  }
 ];
 
 
