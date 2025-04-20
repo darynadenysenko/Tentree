@@ -6,6 +6,8 @@ import LoginPage from '../components/LoginPage.vue';
 import RegistrationPage from '@/components/RegistrationPage.vue';
 import HomePage from '@/components/HomePage.vue';
 import ProfilePage from '@/components/ProfilePage.vue';
+import AddSpotPage from '@/components/AddSpotPage.vue';
+import EditProfilePage from '@/components/EditProfilePage.vue';
 
 // Define routes
 
@@ -34,7 +36,18 @@ const routes = [
     path: '/profile',
     name: 'ProfilePage',
     component: ProfilePage,
+  },
+  {
+    path: '/addspot',
+    name: 'AddSpotPage',
+    component: AddSpotPage,
+  },
+  {
+    path: '/editprofile',
+    name: 'EditProfile',
+    component: EditProfilePage,
   }
+
 ];
 
 

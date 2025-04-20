@@ -66,9 +66,20 @@ model campingspot {
   user                   user?                    @relation(fields: [Owner_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "campingspot_ibfk_1")
   city                   city?                    @relation(fields: [City], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "campingspot_ibfk_2")
   reviews                reviews[]
+  photos                 photo[] 
 
   @@index([City], map: "City")
   @@index([Owner_ID], map: "Owner_ID")
+}
+
+
+model photo {
+  ID            Int       @id @default(autoincrement())
+  URL           String    // Path to the uploaded photo (URL)
+  CampingSpotID Int       // Foreign key to associate photo with camping spot
+  campingSpot   campingspot @relation(fields: [CampingSpotID], references: [ID], onDelete: Cascade)
+
+  @@index([CampingSpotID], map: "camping_spot_photos")  // Index for better query performance
 }
 
 model city {
@@ -84,7 +95,7 @@ model city {
 model country {
   ID   Int    @id @default(autoincrement())
   Name String @db.VarChar(100)
-  city city[]
+  cities city[]
 }
 
 model reviews {

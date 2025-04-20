@@ -52,10 +52,41 @@
       </div>
       
       <div v-if="activeTab === 'mySpots'">
+        <!-- Display Spots -->
+        <div v-for="spot in spots" :key="spot.ID" class="bg-[#FCF6ED] flex items-center py-3 px-2 my-3 rounded-md">
+          <!-- Left side: Spot photo or default camera icon -->
+          <div class="flex items-center">
+            <img 
+              v-if="spot.photos && spot.photos.length > 0" :src="spot.photos[0].URL" alt="Spot photo" 
+              class="w-16 h-16 rounded-full object-cover mr-4"
+            />
+            <div 
+              v-else class="mr-4 w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center"
+            >
+              <i class="fas fa-camera text-gray-600"></i>
+            </div>
+          </div>
+
+          <!-- Spot Name and Address -->
+          <div class="ml-4 flex flex-col">
+            <p class="text-lg font-bold">{{ spot.Name }}</p>
+            <p class="text-sm text-gray-500"> {{ spot.city.country.Name }}, {{ spot.city.Name }}, {{ spot.Street }} </p>
+          </div>
+
+          <!-- Edit and Delete buttons -->
+          <div class="flex ml-auto mr-2 items-center space-x-4 ">
+            <button @click="editSpot(spot.ID)" class="bg-[#2C3B22] hover:bg-green-800 h-[30px] w-[60px] text-white rounded-lg">Edit</button>
+            <button @click="deleteSpot(spot.ID)" class="bg-red-800 hover:bg-red-700 h-[30px] w-[70px] text-white rounded-lg">Delete</button>
+          </div>
+        </div>
         <!-- Add New Spot Button -->
-        <button @click="addNewSpot" class="mt-4 px-6 py-2 bg-[#2C3B22] text-white rounded-md hover:bg-green-800">
+        <div class="flex justify-center">
+          <button @click="addNewSpot" class="mt-4 px-6 py-2 bg-[#2C3B22] text-white rounded-md hover:bg-green-800">
             Add New Spot
-        </button>
+          </button>
+        </div>
+        
+
       </div>
       
       <div v-if="activeTab === 'reviewsGiven'">
@@ -73,28 +104,31 @@
 </template>
 <script>
   export default {
+    name: 'ProfilePage',
     data() {
       return {
-        userInfo: {},  // Define userInfo here
-      
-      userBookings: [
-        { id: 1, name: 'Mountain View Camp', date: 'Jul 15 - 17, 2024' },
-        { id: 2, name: 'Forest Haven', date: 'May 20 - 22, 2023' },
-      ],
-      tabs: [
-        { name: 'myBookings', label: 'My Bookings' },
-        { name: 'mySpots', label: 'My Spots' },
-        { name: 'reviewsGiven', label: 'Reviews Given' },
-        { name: 'reviewsReceived', label: 'Reviews Received' },
-      ],
-      activeTab: 'myBookings', // Default active tab
-    };
+        userInfo: {},  
+        spots: [],      
+        userBookings: [
+          { id: 1, name: 'Mountain View Camp', date: 'Jul 15 - 17, 2024' },
+          { id: 2, name: 'Forest Haven', date: 'May 20 - 22, 2023' },
+        ],
+        tabs: [
+          { name: 'myBookings', label: 'My Bookings' },
+          { name: 'mySpots', label: 'My Spots' },
+          { name: 'reviewsGiven', label: 'Reviews Given' },
+          { name: 'reviewsReceived', label: 'Reviews Received' },
+        ],
+        activeTab: 'myBookings', // Default active tab
+      };
     },
     mounted() {
+      this.fetchUserSpots();
+
       const token = localStorage.getItem('authToken');  // Get token from localStorage
       
       if (token) {
-        fetch('http://localhost:3000/users/home', {  // The /home endpoint
+        fetch('http://localhost:3000/users/profile', {  
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,  // Send token in Authorization header
@@ -115,19 +149,38 @@
     },
     methods:
     {
-        setActiveTab(tabName) {
-            this.activeTab = tabName;  // Switch to the clicked tab
-        },
-        editProfile() {
-        // Logic for editing the profile (e.g., navigate to profile edit page)
-        },
-        logout() {
-        // Logic for logging out (e.g., clear localStorage and redirect to login)
+      editProfile(){
+        this.$router.push('/editprofile');
+      },
+      addNewSpot(){
+        this.$router.push('/addspot');
+
+      },
+      fetchUserSpots() {
+        fetch('http://localhost:3000/spots/myspots', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`, 
+          },
+        })
+        .then(response => response.json())
+        .then(data => {
+          this.spots = data; // Store the fetched spots
+        })
+        .catch(error => {
+          console.error('Error fetching spots:', error);
+        })
+      },
+      setActiveTab(tabName) {
+          this.activeTab = tabName;  // Switch to the clicked tab
+      },
+      logout() {
         localStorage.removeItem('authToken');
-        this.$router.push('/login');
+        this.$router.push('/home');
+      }
     }
 }
-  }
+  
   
 </script>
   

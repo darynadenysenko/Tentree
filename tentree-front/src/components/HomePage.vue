@@ -16,6 +16,7 @@
   
 <script>
   export default {
+    name: 'HomePage',
     data() {
       return {
         userInfo: {},  // Define userInfo here

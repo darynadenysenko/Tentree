@@ -73,7 +73,7 @@ export default {
     },
     methods: {     
         submitForm() {
-            console.log("Submit button clicked");
+        
         // Clear any previous error message
         this.errorMessage = '';
 

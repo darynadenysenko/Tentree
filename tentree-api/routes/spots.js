@@ -1,4 +1,5 @@
 const express = require('express');
+const multer = require('../uploads'); 
 const router = express.Router();
 
 const { PrismaClient } = require('@prisma/client');
@@ -11,6 +12,29 @@ router.get('/', async function(req, res, next) {
   res.json(data);
 });
 
+// GET all spots from specific user
+router.get('/myspots', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const spots = await prisma.campingspot.findMany({
+      where: {Owner_ID: userId},
+      include:{
+        photos: {take : 1},
+        city:{
+          include:{
+            country: true
+          } 
+        }
+      }
+    });
+    res.status(200).json(spots);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch spots' });
+  }
+});
+
 //POST
 router.post('/', authenticateToken, async (req, res) => {
   const userId = req.user.id;
@@ -21,7 +45,8 @@ router.post('/', authenticateToken, async (req, res) => {
     MaxGuests,
     Street,
     CityName,
-    CountryID 
+    CountryID,
+    Amenities
   } = req.body;
 
   try {
@@ -43,7 +68,7 @@ router.post('/', authenticateToken, async (req, res) => {
       });
     }
 
-    // Create the camping spot linked to user and city
+    // Create the camping spot 
     const newSpot = await prisma.campingspot.create({
       data: {
         Name,
@@ -55,6 +80,17 @@ router.post('/', authenticateToken, async (req, res) => {
         Owner_ID: userId
       }
     });
+
+    if (amenities && amenities.length > 0) {
+      const amenityConnections = amenities.map(amenityId => ({
+        CampingSpot_ID: newSpot.ID,
+        Amenity_ID: amenityId
+      }));
+
+      await prisma.camping_spot_amenities.createMany({
+        data: amenityConnections
+      });
+    }
 
     res.status(201).json(newSpot);
   } catch (error) {
