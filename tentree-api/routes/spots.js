@@ -7,10 +7,57 @@ const prisma = new PrismaClient();
 const authenticateToken = require('../middleware/authMiddleware');
 
 // GET all spots 
-router.get('/', async function(req, res, next) {
+router.get('/spots', async function(req, res, next) {
   const data = await prisma.campingspot.findMany();
   res.json(data);
 });
+
+// GET all spots with search and sorting options
+router.get('/filterspots', async (req, res) => {
+  const { countryId, priceSortOrder, searchQuery } = req.query;
+  
+  let query = {
+    where: {},
+    include: {
+      city: {
+        include: {
+          country: true,
+        }
+      }
+    }
+  };
+
+  if (countryId) {
+    query.where.city = {
+      country: {
+        ID: parseInt(countryId),
+      }
+      
+    };
+  }
+
+  if (searchQuery) {
+    query.where.Name = {
+      contains: searchQuery,
+    };
+  }
+
+  // Sorting by price
+  if (priceSortOrder) {
+    query.orderBy = {
+      Price: priceSortOrder === 'asc' ? 'asc' : 'desc',
+    };
+  }
+  
+  try {
+    const spots = await prisma.campingspot.findMany(query);
+    res.json(spots);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch spots' });
+  }
+});
+
 
 // GET all spots from specific user
 router.get('/myspots', authenticateToken, async (req, res) => {

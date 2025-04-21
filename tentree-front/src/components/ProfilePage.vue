@@ -176,7 +176,7 @@
       },
       logout() {
         localStorage.removeItem('authToken');
-        this.$router.push('/home');
+        this.$router.push('/');
       }
     }
 }
