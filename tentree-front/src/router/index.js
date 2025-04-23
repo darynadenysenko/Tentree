@@ -8,6 +8,8 @@ import HomePage from '@/components/HomePage.vue';
 import ProfilePage from '@/components/ProfilePage.vue';
 import AddSpotPage from '@/components/AddSpotPage.vue';
 import EditProfilePage from '@/components/EditProfilePage.vue';
+import SpotInfoPage from '@/components/SpotInfoPage.vue';
+import PhotosPage from '@/components/PhotosPage.vue';
 
 // Define routes
 
@@ -46,6 +48,19 @@ const routes = [
     path: '/editprofile',
     name: 'EditProfile',
     component: EditProfilePage,
+  },
+  {
+    path: '/spotinfo/:id',
+    name: 'SpotInfoPage',
+    component: SpotInfoPage,
+    props: true,
+  },
+  {
+    path: '/photos/:id',
+    name: 'PhotosPage', 
+    component: PhotosPage,
+    props: true,
+    
   }
 
 ];

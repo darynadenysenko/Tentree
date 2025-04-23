@@ -1,5 +1,4 @@
-const express = require('express');
-const multer = require('../uploads'); 
+const express = require('express'); 
 const router = express.Router();
 
 const { PrismaClient } = require('@prisma/client');
@@ -48,7 +47,7 @@ router.get('/filterspots', async (req, res) => {
       Price: priceSortOrder === 'asc' ? 'asc' : 'desc',
     };
   }
-  
+
   try {
     const spots = await prisma.campingspot.findMany(query);
     res.json(spots);
@@ -82,6 +81,42 @@ router.get('/myspots', authenticateToken, async (req, res) => {
   }
 });
 
+//GET spot info (using spot ID)
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;  // Get the spot ID from the route parameters
+  
+  try {
+    const spot = await prisma.campingspot.findUnique({
+      where: { ID: parseInt(id) },
+      include: {
+        city: {
+          include: {
+            country: true, // Include country details
+          },
+        },
+        photos: true,  // Include photos for the spot
+        camping_spot_amenities: {
+          include: {
+            amenities: true,  // Include amenities details
+          } ,
+        },
+      
+        reviews: true,  // Include reviews for the spot
+      },
+    });
+    
+    if (!spot) {
+      return res.status(404).json({ error: 'Spot not found' });
+    }
+    res.json(spot);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch spot details' });
+  }
+});
+
+
 //POST
 router.post('/', authenticateToken, async (req, res) => {
   const userId = req.user.id;
@@ -93,7 +128,7 @@ router.post('/', authenticateToken, async (req, res) => {
     Street,
     CityName,
     CountryID,
-    Amenities
+    amenities
   } = req.body;
 
   try {

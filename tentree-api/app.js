@@ -16,7 +16,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static(path.join(__dirname, 'public')));
 
 // Routing 
 
@@ -29,7 +29,9 @@ const amenitiesRouter = require('./routes/amenities');
 const reviewsRouter = require('./routes/reviews');
 const availabilityRouter = require('./routes/availability');
 const bookingsRouter = require('./routes/bookings');
+const photosRouter = require('./routes/spotphotos');
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.use('/', indexRouter);
@@ -41,6 +43,7 @@ app.use('/amenities', amenitiesRouter);
 app.use('/reviews', reviewsRouter);
 app.use('/availability', availabilityRouter);
 app.use('/bookings', bookingsRouter);
+app.use('/spotphotos', photosRouter);
 
 
 

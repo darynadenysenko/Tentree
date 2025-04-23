@@ -55,17 +55,15 @@
         <!-- Display Spots -->
         <div v-for="spot in spots" :key="spot.ID" class="bg-[#FCF6ED] flex items-center py-3 px-2 my-3 rounded-md">
           <!-- Left side: Spot photo or default camera icon -->
-          <div class="flex items-center">
-            <img 
-              v-if="spot.photos && spot.photos.length > 0" :src="spot.photos[0].URL" alt="Spot photo" 
-              class="w-16 h-16 rounded-full object-cover mr-4"
-            />
-            <div 
-              v-else class="mr-4 w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center"
-            >
-              <i class="fas fa-camera text-gray-600"></i>
+          <router-link :to="`/spotphotos/${spot.ID}`">
+            <div class="flex items-center">
+              <img v-if="spot.photos && spot.photos.length > 0" :src="spot.photos[0].URL" alt="Spot photo" 
+                class="w-16 h-16 rounded-full object-cover mr-4" />
+              <div v-else class="mr-4 w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                <i class="fas fa-camera text-gray-600"></i>
+              </div>
             </div>
-          </div>
+          </router-link>
 
           <!-- Spot Name and Address -->
           <div class="ml-4 flex flex-col">
@@ -108,7 +106,8 @@
     data() {
       return {
         userInfo: {},  
-        spots: [],      
+        spots: [],   
+           
         userBookings: [
           { id: 1, name: 'Mountain View Camp', date: 'Jul 15 - 17, 2024' },
           { id: 2, name: 'Forest Haven', date: 'May 20 - 22, 2023' },

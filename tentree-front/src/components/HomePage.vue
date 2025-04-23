@@ -41,14 +41,16 @@
       No spots found matching your criteria.
     </div>
 
-    <!-- Display Spots -->
-    <div v-for="spot in filteredSpots" :key="spot.ID" class="spot-card">
-      <p>{{ spot.Name }}</p>
-      <p v-if="spot.city && spot.city.country && spot.city.country.Name && spot.city.Name && spot.Street">
-        {{ spot.city.country.Name }}, {{ spot.city.Name }}, {{ spot.Street }}
-      </p>
-      <p v-if="spot.Price">{{ spot.Price }}</p>
+    <!--Display spots-->
+    <div v-for="spot in spots" :key="spot.ID" class="bg-[#FCF6ED] hover:bg-gray-200 mb-3 ml-3 mr-3 rounded-lg spot-card">
+      <router-link :to="`/spotinfo/${spot.ID}`" class="block text-black px-3 py-3">
+        <p class="font-bold text-2xl">{{ spot.Name }}</p>
+        <p> {{ spot.city.country.Name }}, {{ spot.city.Name }}, {{ spot.Street }}
+        </p>
+        <p v-if="spot.Price">Price per night: ${{ spot.Price }}</p>
+      </router-link>
     </div>
+
   </div>
 </template>
 
