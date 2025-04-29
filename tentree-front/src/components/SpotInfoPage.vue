@@ -46,8 +46,19 @@
             <span>{{ amenity.amenities.Name }}</span>
             </div> 
         </div>
+
+        
         </div>
         </div>
+
+        <div class="mt-6">
+    <button
+        @click="goToAvailability"
+        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+    >
+        Check Availability
+    </button>
+    </div>
 
         
 
@@ -82,6 +93,9 @@ export default({
             this.loading = false; // Set loading to false even if there's an error
             });
         },
+        goToAvailability() {
+        this.$router.push(`/availability/${this.spot.ID}`);
+        },        
         goToProfile() {
             this.$router.push('/profile');
         },

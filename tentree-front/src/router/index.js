@@ -10,6 +10,7 @@ import AddSpotPage from '@/components/AddSpotPage.vue';
 import EditProfilePage from '@/components/EditProfilePage.vue';
 import SpotInfoPage from '@/components/SpotInfoPage.vue';
 import PhotosPage from '@/components/PhotosPage.vue';
+import AvailabilityPage from '@/components/AvailabilityPage.vue';
 
 // Define routes
 
@@ -61,6 +62,12 @@ const routes = [
     component: PhotosPage,
     props: true,
     
+  },
+  {
+    path: '/availability/:id',
+    name: 'AvailabilityPage',
+    component: AvailabilityPage,
+    props: true,
   }
 
 ];
