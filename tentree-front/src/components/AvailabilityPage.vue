@@ -90,28 +90,28 @@
     },
     methods: {
         fetchUserData() {
-      const token = localStorage.getItem('authToken'); // Get token from localStorage
-      if (token) {
-        fetch('http://localhost:3000/users/booking', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`, // Send token in Authorization header
-          },
-        })
-          .then(response => response.json())
-          .then(data => {
-            if (data.error) {
-              console.error(data.error);
-            } else {
-              this.userInfo = data; // Display user info
+            const token = localStorage.getItem('authToken'); // Get token from localStorage
+            if (token) {
+                fetch('http://localhost:3000/users/booking', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`, // Send token in Authorization header
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error(data.error);
+                    } else {
+                        this.userInfo = data; // Display user info
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching user info:', error);
+                });
             }
-          })
-          .catch(error => {
-            console.error('Error fetching user info:', error);
-          });
-      }
-    },
-    fetchSpotDetails() {
+        },
+        fetchSpotDetails() {
         const spotId = this.$route.params.id; // Get the 'id' from the route parameters
         fetch(`http://localhost:3000/spots/${spotId}`)
             .then(response => response.json())

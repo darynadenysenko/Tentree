@@ -90,9 +90,30 @@ router.get('/profile', authenticateToken, async (req, res) => {
 
     // Send back user data (first name, last name, email)
     res.json({
+      id: user.ID,
       firstName: user.FirstName,
       lastName: user.LastName,
       email: user.Email,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Route to get the logged-in user's information
+router.get('/review', authenticateToken, async (req, res) => {
+  try {
+    // Retrieve user info based on the ID from the JWT token
+    const user = await prisma.user.findUnique({ where: { ID: req.user.id } });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Send back user data (first name, last name, email)
+    res.json({
+      id: user.ID,
+      
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

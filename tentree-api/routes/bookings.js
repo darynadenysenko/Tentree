@@ -116,7 +116,8 @@ router.get('/user/:userId', async (req, res) => {
     const userBookings = await prisma.booking.findMany({
       where: { User_ID: userId },
       include: {
-        campingspot: { select: { Name: true } },
+
+        campingspot: true ,
         status: true
       },
       orderBy: {
@@ -129,6 +130,33 @@ router.get('/user/:userId', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch user bookings' });
   }
 });
+
+router.get('/:id', async (req, res) => {
+  const bookingId = parseInt(req.params.id);
+
+  if (isNaN(bookingId)) {
+    return res.status(400).json({ error: 'Invalid booking ID' });
+  }
+
+  try {
+    const booking = await prisma.booking.findUnique({
+      where: { ID: bookingId }, // adjust to your booking primary key field if needed
+      include: {
+        campingspot: true, // ✅ Include the camping spot details!
+      },
+    });
+
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    res.json(booking);
+  } catch (error) {
+    console.error('Error fetching booking:', error);
+    res.status(500).json({ error: 'Failed to fetch booking' });
+  }
+});
+
 
 // Change status manually (e.g for owner or)
 router.patch('/:id/status', async (req, res) => {

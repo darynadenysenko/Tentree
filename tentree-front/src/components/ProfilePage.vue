@@ -44,10 +44,16 @@
     <!-- Tab content -->
     <div class="tab-content p-6">
       <div v-if="activeTab === 'myBookings'">
-        <h3 class="font-bold text-xl">My Bookings</h3>
-        <div v-for="booking in userBookings" :key="booking.id" class="booking-item">
-          <p>{{ booking.name }}</p>
-          <p>{{ booking.date }}</p>
+        <div v-for="booking in userBookings" :key="booking.id" class="booking-item bg-[#FCF6ED] flex items-center py-3 px-2 my-3 rounded-md">
+          <div class="ml-4 flex flex-col">
+            <p class="text-lg font-bold">{{ booking.campingspot.Name }}</p>
+            <p>{{ new Date(booking.StartDate).toLocaleDateString() }} - {{ new Date(booking.EndDate).toLocaleDateString() }}</p>
+          </div>
+          <div class="flex ml-auto mr-2 items-center space-x-4" >
+            <button @click="leaveReview(booking.ID)" class="bg-[#2C3B22] hover:bg-green-800 h-[30px] w-[60px] text-white rounded-lg">Leave Review</button>
+            <button class="bg-red-800 hover:bg-red-700 h-[30px] w-[70px] text-white rounded-lg">Book Again</button>
+
+          </div>  
         </div>
       </div>
       
@@ -106,12 +112,8 @@
     data() {
       return {
         userInfo: {},  
-        spots: [],   
-           
-        userBookings: [
-          { id: 1, name: 'Mountain View Camp', date: 'Jul 15 - 17, 2024' },
-          { id: 2, name: 'Forest Haven', date: 'May 20 - 22, 2023' },
-        ],
+        spots: [],              
+        userBookings: [],
         tabs: [
           { name: 'myBookings', label: 'My Bookings' },
           { name: 'mySpots', label: 'My Spots' },
@@ -122,9 +124,19 @@
       };
     },
     mounted() {
+       
+      this.fetchUserInfo();  // Fetch user info on mount
       this.fetchUserSpots();
-
-      const token = localStorage.getItem('authToken');  // Get token from localStorage
+      
+      
+    },
+    methods:
+    {
+      leaveReview(bookingId) {
+        this.$router.push(`/review/${bookingId}`);  // Redirect to leave review page
+      },
+      fetchUserInfo(){
+        const token = localStorage.getItem('authToken');  // Get token from localStorage
       
       if (token) {
         fetch('http://localhost:3000/users/profile', {  
@@ -139,15 +151,36 @@
             console.error(data.error);
           } else {
             this.userInfo = data;  // Display user info
+            this.fetchUserBookings();
           }
         })
         .catch(error => {
           console.error('Error fetching user info:', error);
         });
       }
-    },
-    methods:
-    {
+
+      },
+      fetchUserBookings() {
+        const token = localStorage.getItem('authToken');
+
+        if (token) {
+          fetch(`http://localhost:3000/bookings/user/${this.userInfo.id}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            this.userBookings = data; // Save the real bookings here
+          })
+          .catch(error => {
+            console.error('Error fetching bookings:', error);
+          });
+        }
+},
+
       editProfile(){
         this.$router.push('/editprofile');
       },
