@@ -1,47 +1,39 @@
 <template>
-    
-  <div class="review-page">
-    <div v-if="loading">
-        <p>Loading...</p>
+    <div class="min-h-screen bg-[#F8F1E5] flex items-center flex-col"> 
+        
+            <div v-if="loading">
+                <p>Loading...</p>
+            </div>
+            <div v-else>
+                <h1 class="text-4xl font-medium py-4">Leave a Review for {{ spot.Name }}</h1>
+            </div>
+
+            <textarea v-model="reviewText" placeholder="Write your review..." rows="5" cols="50" class="textarea mt-[50px] mb-6 rounded-md px-3 py-3"></textarea>
+
+            <div class="stars flex space-x-1">
+                <span
+                    v-for="n in 5"
+                    :key="n"
+                    @click="rating = n"
+                    @mouseover="hoverRating = n"
+                    @mouseleave="hoverRating = 0"
+                    class="cursor-pointer text-3xl"
+                >
+                <i class="fas fa-star" :class="(n <= (hoverRating || rating)) ? 'text-yellow-400' : 'text-gray-300'"></i>
+
+                </span>
+            </div>
+
+
+            <button @click="submitReview" :disabled="!reviewText" 
+            :class="['submit-button font-bold py-2 px-4 rounded mt-4', reviewText ? 'bg-[#16461A] hover:bg-green-700 text-white cursor-pointer' : 'bg-gray-500 text-white cursor-not-allowed']">
+                Submit Review
+            </button>
+
+            <p v-if="error" class="error">{{ error }}</p>
+            <p v-if="success" class="success">{{ success }}</p>
+
     </div>
-    <div v-else>
-        <h1>Leave a Review for {{ spot.Name }}</h1>
-    </div>
-
-    <textarea
-      v-model="reviewText"
-      placeholder="Write your review..."
-      rows="5"
-      cols="50"
-      class="textarea"
-    ></textarea>
-
-    <div class="stars flex space-x-1">
-  <span
-    v-for="n in 5"
-    :key="n"
-    @click="rating = n"
-    @mouseover="hoverRating = n"
-    @mouseleave="hoverRating = 0"
-    class="cursor-pointer text-3xl"
-  >
-  <i class="fas fa-star" :class="(n <= (hoverRating || rating)) ? 'text-yellow-400' : 'text-gray-400'"></i>
-
-  </span>
-</div>
-
-
-    <button
-      @click="submitReview"
-      :disabled="!reviewText || reviewRating === 0"
-      class="submit-button"
-    >
-      Submit Review
-    </button>
-
-    <p v-if="error" class="error">{{ error }}</p>
-    <p v-if="success" class="success">{{ success }}</p>
-  </div>
 </template>
     
 
@@ -117,12 +109,12 @@ export default{
       const reviewData = {
         userId: this.userInfo.id, 
         spotId: this.spot.ID,
-        text: this.reviewText,
+        comment: this.reviewText,
         rating: this.rating,
       };
 
       try {
-        const res = await fetch('http://localhost:3000/reviews', {
+        const res = await fetch(`http://localhost:3000/reviews/`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,

@@ -27,18 +27,17 @@ router.get('/:spotId', async (req, res) => {
 });
 
 // POST a review for a spot
-router.post('/:spotId', authenticateToken, async (req, res) => {
-  const spotId = parseInt(req.params.spotId);
-  const userId = req.user.id;
-  const { Rating, Comment } = req.body;
+router.post('/', authenticateToken, async (req, res) => {
+
+  const { userId, spotId, comment, rating } = req.body;
 
   try {
     const newReview = await prisma.reviews.create({
       data: {
         CampingSpot_ID: spotId,
         User_ID: userId,
-        Rating,
-        Comment
+        Rating: rating,
+        Comment: comment
       }
     });
     res.status(201).json(newReview);
