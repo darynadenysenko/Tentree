@@ -72,48 +72,60 @@ router.get('/:campingSpotId', async (req, res) => {
   }
 });*/
 
-// Set a specific date available or unavailable for a camping spot 
-router.patch('/:spotId', authenticateToken, async (req, res) => {
+// Set dates available or unavailable for a camping spot
+router.put('/:spotId', authenticateToken, async (req, res) => {
   const spotId = parseInt(req.params.spotId);
-  const { date, isAvailable } = req.body;
-  
-  const parsedDate = new Date(date);
+  const updates = req.body.updates;
 
-  if (!date || typeof isAvailable !== 'boolean' || isNaN(parsedDate.getTime())) {
-    return res.status(400).json({ error: 'Valid date and isAvailable are required' });
+  if (!Array.isArray(updates) || updates.length === 0) {
+    return res.status(400).json({ error: 'Updates must be a non-empty array' });
   }
 
   try {
-    const existing = await prisma.availability.findFirst({
-      where: {
-        CampingSpot_ID: spotId,
-        Date: parsedDate
+    const results = [];
+
+    for (const update of updates) {
+      const parsedDate = new Date(update.Date);
+      const isAvailable = update.IsAvailable;
+
+      if (!update.Date || typeof isAvailable !== 'boolean' || isNaN(parsedDate.getTime())) {
+        continue; // skip invalid items
       }
-    });
 
-    let result;
-
-    if (existing) {
-      result = await prisma.availability.update({
-        where: { ID: existing.ID },
-        data: { IsAvailable: isAvailable }
-      });
-    } else {
-      result = await prisma.availability.create({
-        data: {
+      const existing = await prisma.availability.findFirst({
+        where: {
           CampingSpot_ID: spotId,
-          Date: parsedDate,
-          IsAvailable: isAvailable
+          Date: parsedDate
         }
       });
+
+      let result;
+      if (existing) {
+        result = await prisma.availability.update({
+          where: { ID: existing.ID },
+          data: { IsAvailable: isAvailable }
+        });
+      } else {
+        result = await prisma.availability.create({
+          data: {
+            CampingSpot_ID: spotId,
+            Date: parsedDate,
+            IsAvailable: isAvailable
+          }
+        });
+      }
+
+      results.push(result);
     }
 
-    res.status(200).json(result);
+    res.status(200).json({ updated: results.length, results });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to update availability' });
   }
 });
+
+
 
 
 module.exports = router;

@@ -79,6 +79,7 @@
 
           <!-- Edit and Delete buttons -->
           <div class="flex ml-auto mr-2 items-center space-x-4 ">
+            <button @click="setAvailability(spot.ID)" class="bg-[#2C3B22] hover:bg-green-800 h-[30px] w-[150px] text-white rounded-lg">Set Availability</button>
             <button @click="editSpot(spot.ID)" class="bg-[#2C3B22] hover:bg-green-800 h-[30px] w-[60px] text-white rounded-lg">Edit</button>
             <button @click="deleteSpot(spot.ID)" class="bg-red-800 hover:bg-red-700 h-[30px] w-[70px] text-white rounded-lg">Delete</button>
           </div>
@@ -94,14 +95,47 @@
       </div>
       
       <div v-if="activeTab === 'reviewsGiven'">
-        <h3 class="font-bold text-xl">Reviews Given</h3>
-        <!-- List of reviews given -->
+        <div v-if="reviewsGiven.length > 0">
+          <div v-for="review in reviewsGiven" :key="review.ID" class="bg-[#FCF6ED] p-4 rounded-lg mb-3">
+
+            <p class="text-lg font-semibold">{{ review.campingspot.Name }}</p>
+            <p class="text-sm text-gray-600 mb-2">{{ new Date(review.CreatedAt).toLocaleDateString() }}</p>
+            <p class="mb-1">Rating: {{ review.Rating }}/5</p>
+            <p class="italic text-gray-700">"{{ review.Comment }}"</p>
+          </div>
+        </div>
+        <div v-else>
+          <p class="text-gray-500">You haven't given any reviews yet.</p>
+        </div>
       </div>
 
       <div v-if="activeTab === 'reviewsReceived'">
-        <h3 class="font-bold text-xl">Reviews Received</h3>
-        <!-- List of reviews received -->
+        <div v-if="spots.length > 0">
+          <div v-for="spot in spots" :key="spot.ID" class="mb-6">
+            <h4 class="text-lg font-semibold">{{ spot.Name }}</h4>
+
+            <div v-if="spot.reviews && spot.reviews.length > 0">
+              <div v-for="review in spot.reviews" :key="review.ID" class="bg-[#FCF6ED] mt-2 p-4 rounded-md">
+                <p class="text-sm text-gray-600">
+                  From: {{ review.user.FirstName }} {{ review.user.LastName }}
+                </p>
+                <p class="text-sm text-gray-500 mb-1">{{ new Date(review.CreatedAt).toLocaleDateString() }}</p>
+                <p>Rating: {{ review.Rating }}/5</p>
+                <p class="italic">"{{ review.Comment }}"</p>
+              </div>
+            </div>
+
+            <div v-else>
+              <p class="text-gray-500 italic">No reviews yet for this spot.</p>
+            </div>
+          </div>
+        </div>
+
+        <div v-else>
+          <p class="text-gray-500">You don’t own any spots yet.</p>
+        </div>
       </div>
+
     </div>
     </div>
 
@@ -114,6 +148,7 @@
         userInfo: {},  
         spots: [],              
         userBookings: [],
+        reviewsGiven: [],
         tabs: [
           { name: 'myBookings', label: 'My Bookings' },
           { name: 'mySpots', label: 'My Spots' },
@@ -127,11 +162,32 @@
        
       this.fetchUserInfo();  // Fetch user info on mount
       this.fetchUserSpots();
-      
-      
     },
     methods:
     {
+      fetchReviewsGiven() {
+        const token = localStorage.getItem('authToken');
+
+        if (token) {
+          fetch(`http://localhost:3000/reviews/user/${this.userInfo.id}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }            
+          })
+          .then(response => response.json())
+          .then(data => {
+            this.reviewsGiven = data;
+          })
+          .catch(error => {
+            console.error('Error fetching reviews:', error);
+          });
+        }
+      },
+      setAvailability(spotId) {
+        this.$router.push(`/setavailability/${spotId}`);  // Redirect to availability page
+      },
       leaveReview(bookingId) {
         this.$router.push(`/review/${bookingId}`);  // Redirect to leave review page
       },
@@ -152,6 +208,7 @@
           } else {
             this.userInfo = data;  // Display user info
             this.fetchUserBookings();
+            this.fetchReviewsGiven();
           }
         })
         .catch(error => {

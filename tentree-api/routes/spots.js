@@ -71,6 +71,16 @@ router.get('/myspots', authenticateToken, async (req, res) => {
           include:{
             country: true
           } 
+        },
+        reviews: {
+          include: {
+            user: {
+              select: {
+                FirstName: true,
+                LastName: true
+              }
+            }
+          }
         }
       }
     });

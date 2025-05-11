@@ -12,6 +12,7 @@ import SpotInfoPage from '@/components/SpotInfoPage.vue';
 import PhotosPage from '@/components/PhotosPage.vue';
 import AvailabilityPage from '@/components/AvailabilityPage.vue';
 import ReviewPage from '@/components/ReviewPage.vue';
+import SetAvailabilityPage from '@/components/SetAvailabilityPage.vue';
 
 // Define routes
 
@@ -75,7 +76,14 @@ const routes = [
     name: 'ReviewPage',
     component: ReviewPage,
     props: true,
-  }
+  },
+  {
+  path: '/setavailability/:id',
+  name: 'SetAvailabilityPage',
+  component: SetAvailabilityPage,
+  props: true,
+  },
+  
 
 ];
 

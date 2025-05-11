@@ -12,7 +12,7 @@
 
   
       <!-- Month/Year Dropdowns -->
-      <div class="dropdowns">
+      <!--<div class="dropdowns">
         <select v-model="selectedMonth" @change="generateCalendar">
           <option v-for="(month, index) in months" :key="index" :value="index">{{ month }}</option>
         </select>
@@ -20,7 +20,20 @@
         <select v-model="selectedYear" @change="generateCalendar">
           <option v-for="year in years" :key="year">{{ year }}</option>
         </select>
-      </div>
+      </div>-->
+      <!-- Calendar Navigation with arrows on the same line -->
+<div class="flex justify-between items-center mb-4">
+  <button 
+    @click="changeMonth(-1)" 
+    :disabled="isCurrentMonth"
+    :class="{ disabled: isCurrentMonth }"
+  >
+    ←
+  </button>
+  <h2>{{ months[selectedMonth] }} {{ selectedYear }}</h2>
+  <button @click="changeMonth(1)">→</button>
+</div>
+
   
       <!-- Custom Calendar Grid -->
       <div class="calendar">
@@ -88,7 +101,31 @@
       this.generateCalendar();
       this.fetchUserData(); 
     },
+    computed: {
+        isCurrentMonth() {
+            const now = new Date();
+            return (
+            this.selectedMonth === now.getMonth() &&
+            this.selectedYear === now.getFullYear()
+            );
+        }
+    },
     methods: {
+        changeMonth(direction) {
+            let newMonth = this.selectedMonth + direction;
+
+            if (newMonth < 0) {
+            this.selectedMonth = 11;
+            this.selectedYear--;
+            } else if (newMonth > 11) {
+            this.selectedMonth = 0;
+            this.selectedYear++;
+            } else {
+            this.selectedMonth = newMonth;
+            }
+
+            this.generateCalendar();
+        },
         fetchUserData() {
             const token = localStorage.getItem('authToken'); // Get token from localStorage
             if (token) {

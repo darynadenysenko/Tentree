@@ -48,26 +48,27 @@ router.post('/', authenticateToken, async (req, res) => {
 
 
 // GET all reviews made by a specific user
-router.get('/user/:userId', async (req, res) => {
-    const userId = parseInt(req.params.userId);
-  
-    try {
-      const userReviews = await prisma.reviews.findMany({
-        where: { User_ID: userId },
-        include: {
-          campingspot: {
-            select: { Name: true }
-          }
-        },
-        orderBy: {
-          CreatedAt: 'desc'
-        }
-      });
-  
-      res.json(userReviews);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch user reviews' });
-    }
-  });
+router.get('/user/:userId', authenticateToken, async (req, res) => {
+  const userId = parseInt(req.params.userId);
+  try {   
+
+    const reviews = await prisma.reviews.findMany({
+      where: {
+        User_ID: userId
+      },
+      include: {
+        campingspot: true
+      },
+      orderBy: {
+        CreatedAt: 'desc'
+      }
+    });
+
+    res.json(reviews);
+  } catch (error) {
+    console.error('Error fetching user reviews:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
   
 module.exports = router;
