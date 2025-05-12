@@ -191,7 +191,83 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
+router.put('/:spotId', authenticateToken, async (req, res) => {
+  const spotId = parseInt(req.params.spotId);
+  const {
+    Name,
+    Description,
+    Price,
+    MaxGuests,
+    Street,
+    CityName,
+    CountryID,
+    amenities
+  } = req.body;
 
+  try {
+    // 1. Ensure city exists or create it
+    let city = await prisma.city.findFirst({
+      where: { Name: CityName, Country_ID: CountryID }
+    });
+
+    if (!city) {
+      city = await prisma.city.create({
+        data: {
+          Name: CityName,
+          Country: { connect: { ID: CountryID } }
+        }
+      });
+    }
+
+    // 2. Update the camping spot
+    const updatedSpot = await prisma.campingspot.update({
+      where: { ID: spotId },
+      data: {
+        Name,
+        Description,
+        Price,
+        MaxGuests,
+        Street,
+        City: city.ID  // ← assign foreign key directly
+      }
+    });
+
+    // 3. Update amenities via the join table
+    await prisma.camping_spot_amenities.deleteMany({
+      where: { CampingSpot_ID: spotId }
+    });
+
+    if (Array.isArray(amenities) && amenities.length > 0) {
+      const amenityData = amenities.map((id) => ({
+        CampingSpot_ID: spotId,
+        Amenity_ID: id
+      }));
+
+      await prisma.camping_spot_amenities.createMany({
+        data: amenityData
+      });
+    }
+
+    // 4. Return updated spot with relations (optional)
+    const fullSpot = await prisma.campingspot.findUnique({
+      where: { ID: spotId },
+      include: {
+        city: { include: { country: true } },
+        camping_spot_amenities: {
+          include: {
+            amenities: true
+          }
+        }
+      }
+    });
+
+    res.json({ message: 'Spot updated successfully', spot: fullSpot });
+
+  } catch (error) {
+    console.error('Error updating spot:', error);
+    res.status(500).json({ error: 'Failed to update spot' });
+  }
+});
 
 
 module.exports = router;

@@ -61,7 +61,7 @@
         <!-- Display Spots -->
         <div v-for="spot in spots" :key="spot.ID" class="bg-[#FCF6ED] flex items-center py-3 px-2 my-3 rounded-md">
           <!-- Left side: Spot photo or default camera icon -->
-          <router-link :to="`/spotphotos/${spot.ID}`">
+          <router-link :to="`/photos/${spot.ID}`">
             <div class="flex items-center">
               <img v-if="spot.photos && spot.photos.length > 0" :src="spot.photos[0].URL" alt="Spot photo" 
                 class="w-16 h-16 rounded-full object-cover mr-4" />
@@ -165,6 +165,9 @@
     },
     methods:
     {
+      editSpot(spotId) {
+        this.$router.push(`/editspot/${spotId}`);  // Redirect to edit spot page
+      },
       fetchReviewsGiven() {
         const token = localStorage.getItem('authToken');
 

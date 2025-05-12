@@ -13,6 +13,7 @@ import PhotosPage from '@/components/PhotosPage.vue';
 import AvailabilityPage from '@/components/AvailabilityPage.vue';
 import ReviewPage from '@/components/ReviewPage.vue';
 import SetAvailabilityPage from '@/components/SetAvailabilityPage.vue';
+import EditSpotPage from '@/components/EditSpotPage.vue';
 
 // Define routes
 
@@ -83,6 +84,12 @@ const routes = [
   component: SetAvailabilityPage,
   props: true,
   },
+  {
+    path: '/editspot/:spotId',
+    name: 'EditSpotPage',
+    component: EditSpotPage,
+    props: true,
+  }
   
 
 ];
