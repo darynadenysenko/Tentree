@@ -31,7 +31,7 @@
         <h1 class="text-3xl font-bold">{{ spot.Name }}</h1>
         
         <div class="flex items-center space-x-2 mt-2">
-            <span>⭐⭐⭐⭐⭐</span> <!-- Static rating for now, can be dynamic based on reviews -->
+            <span>{{ starDisplay }}</span> <!-- Static rating for now, can be dynamic based on reviews -->
             <p>{{spot.reviews.length}} reviews</p>
         </div>
         
@@ -78,6 +78,17 @@ export default({
     mounted() {
         this.fetchSpotDetails();
         
+    },
+    computed: {
+        averageRating() {
+            if (!this.spot.reviews || this.spot.reviews.length === 0) return 0;
+            const total = this.spot.reviews.reduce((sum, review) => sum + (review.Rating || 0), 0);
+            return total / this.spot.reviews.length;
+        },
+        starDisplay() {
+            const stars = Math.round(this.averageRating);
+            return '⭐'.repeat(stars);
+        }
     },
     methods: {
         fetchSpotDetails() {
