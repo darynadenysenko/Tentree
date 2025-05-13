@@ -36,15 +36,60 @@
                 Zero Hassle.
             </h1>
         </div>
+
+        <!-- Popular Spots Section -->
+        <div class="px-6 py-8">
+            <h2 class="text-3xl font-semibold mb-6 text-[#2C3B22]">Top-Rated Spots</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div v-for="spot in topSpots" :key="spot.ID" class="bg-white rounded-lg shadow p-4 hover:shadow-md transition">
+                
+                    <img
+                        :src="spot.photos?.[0]?.URL || 'https://via.placeholder.com/300x200'"
+                        alt="Spot Photo"
+                        class="w-full h-[180px] object-cover rounded"
+                    />
+                    <h3 class="text-xl font-bold mt-3">{{ spot.Name }}</h3>
+                    <p class="text-gray-600 text-sm">
+                        {{ spot.city?.Name }}, {{ spot.city?.country?.Name }}
+                    </p>
+                    <p class="mt-2 text-yellow-600">
+                        ⭐ {{ averageRating(spot.reviews) }} / 5 ({{ spot.reviews.length }} reviews)
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 <script>
 export default {
   name: 'LandingPage',
+  data() {
+    return {
+      topSpots: [], // This will hold the top-rated spots
+    };
+  },
+  mounted() {
+    this.fetchTopSpots();
+  },
   methods: {
     // This method will navigate to the Login Page when the button is clicked
     goToLogin() {
       this.$router.push('/login');  
+    },
+    averageRating(reviews) {
+      if (!reviews || reviews.length === 0) return 'No rating';
+      const total = reviews.reduce((sum, r) => sum + (r.Rating || 0), 0);
+      return (total / reviews.length).toFixed(1);
+    },
+    fetchTopSpots() {
+      fetch('http://localhost:3000/spots/spots/toprated')
+        .then(res => res.json())
+        .then(data => {
+          this.topSpots = data;
+        })
+        .catch(err => {
+          console.error('Error loading top spots:', err);
+        });
     }
   }
 };

@@ -91,40 +91,7 @@ router.get('/myspots', authenticateToken, async (req, res) => {
   }
 });
 
-//GET spot info (using spot ID)
-router.get('/:id', async (req, res) => {
-  const { id } = req.params;  // Get the spot ID from the route parameters
-  
-  try {
-    const spot = await prisma.campingspot.findUnique({
-      where: { ID: parseInt(id) },
-      include: {
-        city: {
-          include: {
-            country: true, // Include country details
-          },
-        },
-        photos: true,  // Include photos for the spot
-        camping_spot_amenities: {
-          include: {
-            amenities: true,  // Include amenities details
-          } ,
-        },
-      
-        reviews: true,  // Include reviews for the spot
-      },
-    });
-    
-    if (!spot) {
-      return res.status(404).json({ error: 'Spot not found' });
-    }
-    res.json(spot);
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch spot details' });
-  }
-});
 
 
 //POST
@@ -269,8 +236,75 @@ router.put('/:spotId', authenticateToken, async (req, res) => {
   }
 });
 
+// Example: GET /spots/top-rated
+router.get('/spots/toprated', async (req, res) => {
+  try {
+    const spots = await prisma.campingspot.findMany({
+      include: {
+        city: {
+          include: {
+            country: true,
+          },
+        },
+        photos: true,
+        reviews: true,
+      },
+    });
+
+    // Sort by average rating manually
+    const sortedSpots = spots
+      .map(spot => ({
+        ...spot,
+        avgRating:
+          spot.reviews.length > 0
+            ? spot.reviews.reduce((sum, r) => sum + (r.Rating || 0), 0) / spot.reviews.length
+            : 0,
+      }))
+      .sort((a, b) => b.avgRating - a.avgRating)
+      .slice(0, 6);
+
+    res.json(sortedSpots);
+  } catch (error) {
+    console.error('Error fetching top-rated spots:', error);
+    res.status(500).json({ error: 'Failed to fetch top-rated spots.' });
+  }
+});
 
 
+//GET spot info (using spot ID)
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;  // Get the spot ID from the route parameters
+  
+  try {
+    const spot = await prisma.campingspot.findUnique({
+      where: { ID: parseInt(id) },
+      include: {
+        city: {
+          include: {
+            country: true, // Include country details
+          },
+        },
+        photos: true,  // Include photos for the spot
+        camping_spot_amenities: {
+          include: {
+            amenities: true,  // Include amenities details
+          } ,
+        },
+      
+        reviews: true,  // Include reviews for the spot
+      },
+    });
+    
+    if (!spot) {
+      return res.status(404).json({ error: 'Spot not found' });
+    }
+    res.json(spot);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch spot details' });
+  }
+});
 
 
 module.exports = router;
