@@ -14,6 +14,8 @@ import AvailabilityPage from '@/components/AvailabilityPage.vue';
 import ReviewPage from '@/components/ReviewPage.vue';
 import SetAvailabilityPage from '@/components/SetAvailabilityPage.vue';
 import EditSpotPage from '@/components/EditSpotPage.vue';
+import ForgotPasswordPage from '@/components/ForgotPasswordPage.vue';
+import ResetPassword from '@/components/ResetPassword.vue';
 
 // Define routes
 
@@ -89,6 +91,16 @@ const routes = [
     name: 'EditSpotPage',
     component: EditSpotPage,
     props: true,
+  },
+  {
+    path: '/forgotpassword',
+    name: 'ForgotPasswordPage',
+    component: ForgotPasswordPage,
+  },
+  { 
+    path: '/resetpassword/',
+    name: 'ResetPassword',
+    component: ResetPassword,
   }
   
 

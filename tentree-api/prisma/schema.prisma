@@ -7,6 +7,19 @@ datasource db {
   url      = "mysql://root:root@localhost:3306/tentree"
 }
 
+model passwordresettoken {
+  ID         Int      @id @default(autoincrement())
+  user       user     @relation(fields: [User_ID], references: [ID], onDelete: Cascade)
+  User_ID    Int
+  Token      String   @unique
+  ExpiresAt  DateTime
+  CreatedAt  DateTime @default(now())
+
+  @@index([User_ID])
+}
+
+
+
 model amenities {
   ID                     Int                      @id @default(autoincrement())
   Name                   String                   @db.VarChar(100)
@@ -128,4 +141,5 @@ model user {
   booking     booking[]
   campingspot campingspot[]
   reviews     reviews[]
+  passwordresettoken passwordresettoken[]
 }

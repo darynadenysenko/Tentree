@@ -157,22 +157,81 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-
-// Change status manually (e.g for owner or)
-router.patch('/:id/status', async (req, res) => {
-  const bookingId = parseInt(req.params.id);
-  const { statusId } = req.body;
-
+router.get('/incoming/:userId', authenticateToken, async (req, res) => {
   try {
-    const updated = await prisma.booking.update({
-      where: { ID: bookingId },
-      data: { Status_ID: statusId }
+    const userId = parseInt(req.params.userId);
+    // Fetch bookings for spots owned by this user
+    const bookings = await prisma.booking.findMany({
+      where: {
+        campingspot: {
+          Owner_ID: userId
+        }
+      },
+      include: {
+        user: {
+          select: {
+            FirstName: true,
+            LastName: true,
+            Email: true
+          }
+        },
+        campingspot: {
+          select: {
+            Name: true
+          }
+        },
+        status: {
+          select: {
+            Name: true
+          }
+        }
+      },
+      orderBy: {
+        CreatedAt: 'desc'
+      }
     });
 
-    res.json(updated);
+    res.json(bookings);
   } catch (error) {
+    console.error('Error fetching incoming bookings:', error);
+    res.status(500).json({ error: 'Failed to fetch incoming bookings.' });
+  }
+});
+
+
+// Add to routes/bookings.js
+router.put('/:bookingId/status', authenticateToken, async (req, res) => {
+  const bookingId = parseInt(req.params.bookingId, 10);
+  const { statusName } = req.body;
+
+  if (!['Confirmed', 'Rejected'].includes(statusName)) {
+    return res.status(400).json({ error: 'Invalid status name' });
+  }
+
+  try {
+    // Get the status ID by name
+    const status = await prisma.status.findFirst({
+      where: { Name: statusName }
+    });
+
+    if (!status) {
+      return res.status(400).json({ error: 'Status not found' });
+    }
+
+    // Update booking
+    const updatedBooking = await prisma.booking.update({
+      where: { ID: bookingId },
+      data: {
+        Status_ID: status.ID
+      }
+    });
+
+    res.json(updatedBooking);
+  } catch (err) {
+    console.error('Error updating booking status:', err);
     res.status(500).json({ error: 'Failed to update booking status' });
   }
 });
+
 
 module.exports = router;

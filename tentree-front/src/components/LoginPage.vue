@@ -21,9 +21,9 @@
 
                 <!-- Forgot Password -->
                     <div class="flex justify-end text-sm">
-                    <a href="#" class="text-black hover:text-green-700">
-                        Forgot password?
-                    </a>
+                        <router-link to="/forgotpassword" class="text-black hover:text-green-700">
+                            Forgot password?
+                        </router-link>
                 </div>
 
                 <!-- Log In Button -->

@@ -136,6 +136,31 @@
         </div>
       </div>
 
+      <div v-if="activeTab === 'bookingRequests'">
+        <h2 class="text-2xl font-semibold mb-4">Booking Requests</h2>
+        <div v-if="bookingRequests.length === 0" class="text-gray-500">No booking requests available.</div>
+
+        <!-- Display Booking Requests -->
+      <div v-for="request in bookingRequests" :key="request.ID" class="bg-[#FCF6ED] p-4 mb-4 rounded-md shadow">
+        <p class="font-bold text-lg">{{ request.campingspot.Name }}</p>
+        <p class="text-sm text-gray-700">{{ new Date(request.StartDate).toLocaleDateString() }} – {{ new Date(request.EndDate).toLocaleDateString() }}</p>
+        <p class="text-sm text-gray-800 mt-1">
+          Requested by: {{ request.user.FirstName }} {{ request.user.LastName }} ({{ request.user.Email }})
+        </p>
+        <p class="text-sm text-gray-600 mt-1">Status: {{ request.status.Name }}</p>
+
+        <div class="mt-2 flex space-x-2" v-if="request.status.Name === 'Pending'">
+          <button @click="updateBookingStatus(request.ID, 'Confirmed')" class="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700">
+            Accept
+          </button>
+          <button @click="updateBookingStatus(request.ID, 'Rejected')" class="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700">
+            Reject
+          </button>
+        </div>
+      </div>
+      </div>
+
+
     </div>
     </div>
 
@@ -149,22 +174,68 @@
         spots: [],              
         userBookings: [],
         reviewsGiven: [],
+        bookingRequests: [],
         tabs: [
           { name: 'myBookings', label: 'My Bookings' },
           { name: 'mySpots', label: 'My Spots' },
           { name: 'reviewsGiven', label: 'Reviews Given' },
           { name: 'reviewsReceived', label: 'Reviews Received' },
+          { name: 'bookingRequests', label: 'Booking Requests' }
         ],
         activeTab: 'myBookings', // Default active tab
       };
     },
     mounted() {
        
-      this.fetchUserInfo();  // Fetch user info on mount
+      this.fetchUserInfo();  
       this.fetchUserSpots();
     },
     methods:
     {
+      updateBookingStatus(bookingId, status) {
+  const token = localStorage.getItem('authToken');
+
+  fetch(`http://localhost:3000/bookings/${bookingId}/status`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ statusName: status })
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Failed to update booking');
+    }
+    return response.json();
+  })
+  .then(() => {
+    // Refresh booking requests list
+    this.fetchBookingRequests();
+  })
+  .catch(error => {
+    console.error('Error updating booking status:', error);
+  });
+},
+
+      fetchBookingRequests() {
+        const token = localStorage.getItem('authToken');
+
+        fetch(`http://localhost:3000/bookings/incoming/${this.userInfo.id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+          .then(response => response.json())
+          .then(data => {
+            this.bookingRequests = data;
+          })
+          .catch(error => {
+            console.error('Error fetching booking requests:', error);
+          });
+      },
+
       editSpot(spotId) {
         this.$router.push(`/editspot/${spotId}`);  // Redirect to edit spot page
       },
@@ -211,7 +282,8 @@
           } else {
             this.userInfo = data;  // Display user info
             this.fetchUserBookings();
-            this.fetchReviewsGiven();
+            this.fetchReviewsGiven();            
+            this.fetchBookingRequests();
           }
         })
         .catch(error => {
