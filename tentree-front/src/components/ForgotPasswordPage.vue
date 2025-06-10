@@ -38,12 +38,12 @@
     },
     methods: {
       submitEmail() {
-        fetch('http://localhost:3000/auth/forgotpassword', {
+        fetch('http://localhost:3000/auth/forgotpassword', { 
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: this.email })
+          body: JSON.stringify({ email: this.email }) // Send the email to the backend as JSON
         })
-          .then(res => res.json())
+          .then(res => res.json()) // Parse the JSON response
           .then(data => {
             if (data.error) {
               this.error = data.error;

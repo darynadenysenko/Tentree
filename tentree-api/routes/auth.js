@@ -1,3 +1,5 @@
+//Routes for user authentication, registration, and password reset
+
 const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
@@ -45,7 +47,7 @@ router.post('/forgotpassword', async (req, res) => {
     });
 
     // Email reset link
-    const resetLink = `http://localhost:8080/resetpassword?token=${token}`; // adjust if needed
+    const resetLink = `http://localhost:8080/resetpassword?token=${token}`; 
 
 
     await transporter.sendMail({
@@ -135,7 +137,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Generate the JWT token for the user
-    const token = auth.generateToken(user); // Assuming `generateToken` is implemented in your `authLogic.js`
+    const token = auth.generateToken(user); 
 
     // Respond with the token and user info
     res.json({

@@ -129,7 +129,7 @@
 
             <!-- Submit Button -->
             <div class="flex py-5 justify-center">
-                <button type="submit" class="w-40 py-2 px-4 bg-[#16461A] text-white rounded-md hover:bg-blue-600">
+                <button type="submit" class="w-40 py-2 px-4 bg-[#16461A] text-white rounded-md hover:bg-green-600">
                 Submit
                 </button>
             </div>
@@ -180,7 +180,7 @@ export default {
         Street: this.street,
         CityName: this.city,
         CountryID: this.country,
-        amenities: this.selectedAmenities // Send selected amenities
+        amenities: this.selectedAmenities 
         };
 
         fetch('http://localhost:3000/spots', {
@@ -189,9 +189,9 @@ export default {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Token for authentication
         },
-        body: JSON.stringify(spotData)
+        body: JSON.stringify(spotData) //Send the spotData object as JSON in the request body
         })
-        .then(response => response.json())
+        .then(response => response.json()) //When server responds, convert the response from JSON into a JavaScript object
         .then(data => {
             console.log('Spot created:', data);
             this.isSubmitted = true;
@@ -202,20 +202,20 @@ export default {
 
     },
     chooseAmenity(amenity) {
-      const index = this.selectedAmenities.indexOf(amenity.ID);
-      if (index === -1) {
+      const index = this.selectedAmenities.indexOf(amenity.ID); //check if the amenity is already in selected amenities array
+      if (index === -1) { //not found
         // Add to selected if not already selected
         this.selectedAmenities.push(amenity.ID);
       } else {
         // Remove from selected if already selected
-        this.selectedAmenities.splice(index, 1);
+        this.selectedAmenities.splice(index, 1); //go to position index and remove 1 item
       }
     },
     getAmenities() {
         fetch('http://localhost:3000/amenities')
-        .then(response => response.json())
+        .then(response => response.json()) //When server responds convert the response from JSON to a JavaScript object
         .then(data => {
-            this.amenities = data;
+            this.amenities = data; // Store the fetched amenities in the component's data
         })
         .catch(error => {
             console.error('Error fetching amenities:', error);
@@ -223,9 +223,9 @@ export default {
     },
     getCountries() {
         fetch('http://localhost:3000/countries')
-        .then(response => response.json())
+        .then(response => response.json()) //When server responds convert the response from JSON to a JavaScript object
         .then(data => {
-            this.countries = data;
+            this.countries = data; // Store the fetched countries in the component's data
         })
         .catch(error => {
             console.error('Error fetching countries:', error);

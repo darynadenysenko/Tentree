@@ -112,20 +112,20 @@ export default {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
+            body: JSON.stringify({ // Send user data as JSON
                 FirstName: this.firstName,
                 LastName: this.lastName,
                 Email: this.email,
                 Password: this.password,
             }),
         })
-        .then((response) => response.json())
+        .then((response) => response.json()) // Parse the JSON response
             .then((data) => {
                 if (data.token) {
                     // Store the token in localStorage
                     localStorage.setItem('authToken', data.token);
 
-                    // Optionally, store user information as well
+                    // Store user information 
                     localStorage.setItem('userInfo', JSON.stringify(data.user));
 
                     // Redirect to the home page after successful registration
@@ -139,7 +139,7 @@ export default {
                 this.errorMessage = 'An error occurred. Please try again!';
             })
             .finally(() => {
-                this.isSubmitting = false;
+                this.isSubmitting = false; 
             });
 
         }, 

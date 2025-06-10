@@ -26,7 +26,7 @@
         <div class="mx-4 border-b border-green-800">
           <label class="block text-lg font-medium">Description</label>
           <textarea v-model="description" maxlength="500" rows="4" required
-                    class="w-full px-3 py-3 border border-gray-300 rounded-md"></textarea>
+            class="w-full px-3 py-3 border border-gray-300 rounded-md"></textarea>
           <p class="text-right text-sm text-gray-500">{{ description.length }}/500</p>
         </div>
   
@@ -105,22 +105,21 @@
         isSubmitted: false,
       };
     },
-    mounted() {
-      
+    mounted() {      
       this.getCountries();
       this.getAmenities();
       this.fetchSpotDetails();
     },
     methods: {
       fetchSpotDetails() {
-        this.spotId = this.$route.params.spotId;
-        fetch(`http://localhost:3000/spots/${this.spotId}`, {
+        this.spotId = this.$route.params.spotId; // Get the spot ID from the route parameters
+        fetch(`http://localhost:3000/spots/${this.spotId}`, { // Fetch the spot details
           headers: {
             Authorization: `Bearer ${localStorage.getItem('authToken')}`,
           },
         })
-          .then((res) => res.json())
-          .then((data) => {
+          .then((res) => res.json()) //Convert response to JSON
+          .then((data) => { //Copy spot details into component data
             this.title = data.Name;
             this.description = data.Description;
             this.price = data.Price;
@@ -132,8 +131,9 @@
           })
           .catch((err) => console.error('Failed to load spot:', err));
       },
+
       submitForm() {
-        const spotData = {
+        const spotData = { // Prepare the data to be sent to the server
           Name: this.title,
           Description: this.description,
           Price: this.price,
@@ -144,33 +144,37 @@
           amenities: this.selectedAmenities,
         };
   
-        fetch(`http://localhost:3000/spots/${this.spotId}`, {
+        fetch(`http://localhost:3000/spots/${this.spotId}`, { // Send a PUT request to update the spot
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${localStorage.getItem('authToken')}`,
           },
-          body: JSON.stringify(spotData),
+          body: JSON.stringify(spotData), // Convert the spotData object to JSON
         })
-          .then((res) => res.json())
+          .then((res) => res.json()) // Convert response to JavaScript object
           .then(() => {
-            this.isSubmitted = true;
+            this.isSubmitted = true; // Set isSubmitted to true to show success message
           })
           .catch((err) => console.error('Failed to update spot:', err));
       },
+
       toggleAmenity(amenity) {
-        const index = this.selectedAmenities.indexOf(amenity.ID);
-        if (index === -1) this.selectedAmenities.push(amenity.ID);
-        else this.selectedAmenities.splice(index, 1);
+        const index = this.selectedAmenities.indexOf(amenity.ID); // Check if the amenity is already selected
+        if (index === -1) this.selectedAmenities.push(amenity.ID); // If not selected, add it to the array
+        else this.selectedAmenities.splice(index, 1); // If selected, remove it from the array
       },
-      getAmenities() {
+
+
+      getAmenities() { // Fetch the list of amenities from the server
         fetch('http://localhost:3000/amenities')
-          .then((res) => res.json())
-          .then((data) => (this.amenities = data));
+          .then((res) => res.json()) // Convert response to JavaScript object
+          .then((data) => (this.amenities = data)); // Store the amenities in the component data
       },
+
       getCountries() {
-        fetch('http://localhost:3000/countries')
-          .then((res) => res.json())
+        fetch('http://localhost:3000/countries') // Fetch the list of countries from the server
+          .then((res) => res.json()) // Convert response to JavaScript object
           .then((data) => (this.countries = data));
       },
       goToProfile() {

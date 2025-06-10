@@ -4,49 +4,19 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const authenticateToken = require('../middleware/authMiddleware');
 
-// POST a new booking
-/*router.post('/', authenticateToken, async (req, res) => {
-  const {
-    User_ID,
-    CampingSpot_ID,
-    StartDate,
-    EndDate,
-    Price
-  } = req.body;
-
-  try {
-    const newBooking = await prisma.booking.create({
-      data: {
-        User_ID: User_ID,
-        CampingSpot_ID,
-        StartDate: new Date(StartDate),
-        EndDate: new Date(EndDate),
-        Price: new Prisma.Decimal(Price),
-        Status_ID: 1 
-      }
-    });
-
-    res.status(201).json(newBooking);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create booking' });
-  }
-});*/
-
-
+// Create a new booking
 
 router.post('/', async (req, res) => {
+  const { userId, campingSpotId, startDate, endDate, price } = req.body;  //get data from request body
 
-  const { userId, campingSpotId, startDate, endDate, price } = req.body;
-  
-
-  try {
+  try { //try to create a new booking
     const booking = await prisma.booking.create({
       data: {
         User_ID: userId,
         CampingSpot_ID: Number(campingSpotId),
         StartDate: new Date(startDate),
         EndDate: new Date(endDate),
-        Price: parseFloat(price), // Ensure price is properly parsed
+        Price: parseFloat(price), 
         Status_ID: 1,
       },
     });
@@ -62,14 +32,14 @@ router.post('/', async (req, res) => {
     }
 
     // Update availability for each date
-    await Promise.all(
-      dates.map(async d => {
+    await Promise.all( //wait for all updates to complete (promise.all run all promises in parallel)
+      dates.map(async d => { //loop through each date, apply funciton
         await prisma.availability.updateMany({
           where: {
             CampingSpot_ID: Number(campingSpotId),
             Date: {
-              gte: new Date(d.toISOString().split('T')[0]),
-              lt: new Date(new Date(d).setDate(d.getDate() + 1)) // Next day
+              gte: new Date(d.toISOString().split('T')[0]), // >= start of the day
+              lt: new Date(new Date(d).setDate(d.getDate() + 1)) // < next day
             }
           },
           data: {
@@ -78,8 +48,6 @@ router.post('/', async (req, res) => {
         });
       })
     );
-    
-
     res.status(201).json({ message: "Booking created successfully", booking });
   } catch (error) {
     console.error('Booking error:', error);
@@ -87,13 +55,15 @@ router.post('/', async (req, res) => {
   }
 });
 
+
+// GET all bookings
 router.get('/', async (req, res) => {
   try {
     const bookings = await prisma.booking.findMany({
       include: {
-        user: true,         // Include user info if you want
-        campingspot: true,  // Include camping spot info if you want
-        status: true,       // Include booking status info if you want
+        user: true,         // Include user info 
+        campingspot: true,  // Include camping spot info 
+        status: true,       // Include booking status info 
       },
       orderBy: {
         CreatedAt: 'desc', // Newest first
@@ -116,21 +86,28 @@ router.get('/user/:userId', async (req, res) => {
     const userBookings = await prisma.booking.findMany({
       where: { User_ID: userId },
       include: {
-
-        campingspot: true ,
+        campingspot: {
+          include: {
+            reviews: true,
+          }
+        } ,
+        review: true,
         status: true
       },
       orderBy: {
-        CreatedAt: 'desc'
+        StartDate: 'desc'
       }
     });
 
     res.json(userBookings);
   } catch (error) {
+    console.error('Test Error:', error);
     res.status(500).json({ error: 'Failed to fetch user bookings' });
   }
 });
 
+
+// GET a specific booking by ID
 router.get('/:id', async (req, res) => {
   const bookingId = parseInt(req.params.id);
 
@@ -140,9 +117,9 @@ router.get('/:id', async (req, res) => {
 
   try {
     const booking = await prisma.booking.findUnique({
-      where: { ID: bookingId }, // adjust to your booking primary key field if needed
+      where: { ID: bookingId }, 
       include: {
-        campingspot: true, // ✅ Include the camping spot details!
+        campingspot: true, // Include the camping spot details!
       },
     });
 
@@ -157,6 +134,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+
+// GET incoming bookings for a specific user (bookings for spots they own)
 router.get('/incoming/:userId', authenticateToken, async (req, res) => {
   try {
     const userId = parseInt(req.params.userId);
@@ -199,7 +178,7 @@ router.get('/incoming/:userId', authenticateToken, async (req, res) => {
 });
 
 
-// Add to routes/bookings.js
+// Update booking status (confirm or reject)
 router.put('/:bookingId/status', authenticateToken, async (req, res) => {
   const bookingId = parseInt(req.params.bookingId, 10);
   const { statusName } = req.body;

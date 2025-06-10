@@ -1,20 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const auth = require('./authLogic');
 const authenticateToken = require('../middleware/authMiddleware');  
 
-/* GET all users */
+//GET all users 
 router.get('/', async function(req, res, next) {
   const data = await prisma.user.findMany();
   res.json(data);
 });
 
 //POST users
-
 router.post('/', async (req, res, next) => {
   // Check if a user with the same email already exists
   const checkUser = await prisma.user.findMany({
@@ -57,10 +55,11 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-// Route to get the logged-in user's information
+
+// Route to get the logged-in user's information (for home page)
 router.get('/home', authenticateToken, async (req, res) => {
   try {
-    // Retrieve user info based on the ID from the JWT token
+    // get user info based on the ID from the JWT token
     const user = await prisma.user.findUnique({ where: { ID: req.user.id } });
 
     if (!user) {
@@ -78,7 +77,8 @@ router.get('/home', authenticateToken, async (req, res) => {
   }
 });
 
-// Route to get the logged-in user's information
+
+// Route to get the logged-in user's information (for profile page)
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
     // Retrieve user info based on the ID from the JWT token
@@ -88,7 +88,7 @@ router.get('/profile', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Send back user data (first name, last name, email)
+    // Send back user data 
     res.json({
       id: user.ID,
       firstName: user.FirstName,
@@ -100,7 +100,8 @@ router.get('/profile', authenticateToken, async (req, res) => {
   }
 });
 
-// Route to get the logged-in user's information
+
+// Route to get the logged-in user's information (review page)
 router.get('/review', authenticateToken, async (req, res) => {
   try {
     // Retrieve user info based on the ID from the JWT token
@@ -120,7 +121,9 @@ router.get('/review', authenticateToken, async (req, res) => {
   }
 });
 
-// Route to get the logged-in user's information
+
+
+// Route to get the logged-in user's information (booking page)
 router.get('/booking', authenticateToken, async (req, res) => {
   try {
     // Retrieve user info based on the ID from the JWT token
@@ -141,7 +144,7 @@ router.get('/booking', authenticateToken, async (req, res) => {
 });
 
 
-// PATCH route to update user profile
+// update user profile
 router.patch('/profile', authenticateToken, async (req, res) => {
   const { firstName, lastName, email } = req.body;
   const userId = req.user.id;
@@ -149,7 +152,7 @@ router.patch('/profile', authenticateToken, async (req, res) => {
   try {
     const updatedData = {};
 
-    // Conditionally update fields only if they are provided in the request body
+    // update fields only if they are provided in the request body
     if (firstName) updatedData.FirstName = firstName;
     if (lastName) updatedData.LastName = lastName;
     if (email) updatedData.Email = email;

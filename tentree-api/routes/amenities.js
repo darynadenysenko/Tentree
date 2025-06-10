@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
         Name: 'asc'
       }
     });
-    res.json(amenities);
+    res.json(amenities); //send the amenities as JSON response
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch amenities' });
   }

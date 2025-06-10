@@ -10,10 +10,10 @@ const authenticateToken = require('../middleware/authMiddleware');
 // Set up multer to handle file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Save uploaded files to the "uploads" directory
+      cb(null, 'uploads/'); // Save uploaded files to the "uploads" directory
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname); // Naming files with timestamp to avoid conflicts
+      cb(null, Date.now() + '-' + file.originalname); // Naming files with timestamp to avoid conflicts
     },
 });
 

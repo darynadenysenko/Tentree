@@ -28,23 +28,38 @@ router.get('/:spotId', async (req, res) => {
 
 // POST a review for a spot
 router.post('/', authenticateToken, async (req, res) => {
-
-  const { userId, spotId, comment, rating } = req.body;
+  const { userId, spotId, comment, rating, bookingId } = req.body;
 
   try {
+    // Prevent duplicate review for the same booking
+    const existingReview = await prisma.reviews.findUnique({
+        where: {
+          Booking_ID: parseInt(bookingId),
+        }
+    });
+
+    if (existingReview) {
+      return res.status(400).json({ error: 'You already reviewed this booking.' });
+    }
+
+    // Create new review
     const newReview = await prisma.reviews.create({
       data: {
         CampingSpot_ID: spotId,
         User_ID: userId,
+        Booking_ID: parseInt(bookingId), 
         Rating: rating,
         Comment: comment
       }
     });
+
     res.status(201).json(newReview);
   } catch (error) {
+    console.error('Error creating review:', error);
     res.status(500).json({ error: 'Failed to create review' });
   }
 });
+
 
 
 // GET all reviews made by a specific user

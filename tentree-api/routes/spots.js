@@ -22,7 +22,8 @@ router.get('/filterspots', async (req, res) => {
         include: {
           country: true,
         }
-      }
+      },
+      photos: true,
     }
   };
 
@@ -291,7 +292,17 @@ router.get('/:id', async (req, res) => {
           } ,
         },
       
-        reviews: true,  // Include reviews for the spot
+        reviews: {
+          include: {
+            user: {
+              select: {
+                FirstName: true,
+                LastName: true,
+              },
+            },
+          },
+        }
+          
       },
     });
     
@@ -305,6 +316,23 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch spot details' });
   }
 });
+
+// DELETE a spot
+router.delete('/:id', authenticateToken, async (req, res) => {
+  const spotId = parseInt(req.params.id);
+
+  try {
+    await prisma.campingspot.delete({
+      where: { ID: spotId }
+    });
+
+    res.status(200).json({ message: 'Spot deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting spot:', error);
+    res.status(500).json({ error: 'Failed to delete spot.' });
+  }
+});
+
 
 
 module.exports = router;

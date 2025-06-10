@@ -36,37 +36,37 @@
       };
     },
     methods: {
-        submitNewPassword() {
-      const token = this.$route.query.token;
+      submitNewPassword() {
+        const token = this.$route.query.token;
 
-      fetch('http://localhost:3000/auth/resetpassword', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          token: token,
-          newPassword: this.newPassword,
-        }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.error) {
-            this.error = data.error;
-            this.message = '';
-          } else {
-            // ✅ Optional: show a quick success message before redirect
-            this.message = 'Password reset successfully! Redirecting to login...';
-            this.error = '';
-
-            // ✅ Wait 2 seconds, then redirect to login
-            setTimeout(() => {
-              this.$router.push('/login');
-            }, 2000);
-          }
+        fetch('http://localhost:3000/auth/resetpassword', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ // Send the token and new password to the backend
+            token: token,
+            newPassword: this.newPassword,
+          }),
         })
-        .catch(() => {
-          this.error = 'Something went wrong.';
-        });
-    },
+          .then((res) => res.json()) // Parse the JSON response
+          .then((data) => {
+            if (data.error) {
+              this.error = data.error;
+              this.message = '';
+            } else {
+              // success message before redirect
+              this.message = 'Password reset successfully! Redirecting to login...';
+              this.error = '';
+
+              // Wait 2 seconds, then redirect to login
+              setTimeout(() => {
+                this.$router.push('/login');
+              }, 2000);
+            }
+          })
+          .catch(() => {
+            this.error = 'Something went wrong.';
+          });
+      },
     },
   };
   </script>

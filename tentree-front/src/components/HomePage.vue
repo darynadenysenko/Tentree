@@ -21,28 +21,34 @@
         @input="searchSpots"
       />
 
-      <!-- Search by Country -->
-      <select v-model="searchByCountry" class="px-4 py-2 border border-gray-300 rounded-md" @change="searchSpots">
-        <option value="">Search by Country</option>
-        <option v-for="country in countries" :key="country.ID" :value="country.ID">
-          {{ country.Name }}
-        </option>
-      </select>
+      <div class="space-x-4">
+        <!-- Search by Country -->
+        <select v-model="searchByCountry" class="px-4 py-2 border border-gray-300 rounded-md" @change="searchSpots">
+          <option value="">Search by Country</option>
+          <option v-for="country in countries" :key="country.ID" :value="country.ID">
+            {{ country.Name }}
+          </option>
+        </select>
 
-      <!-- Sort by Price -->
-      <select v-model="priceSortOrder" class="px-4 py-2 border border-gray-300 rounded-md" @change="searchSpots">
-        <option value="">Sort by Price</option>
-        <option value="asc">Price: Low to High</option>
-        <option value="desc">Price: High to Low</option>
-      </select>
+        <!-- Sort by Price -->
+        <select v-model="priceSortOrder" class="px-4 py-2 border border-gray-300 rounded-md" @change="searchSpots">
+          <option value="">Sort by Price</option>
+          <option value="asc">Price: Low to High</option>
+          <option value="desc">Price: High to Low</option>
+        </select>
+      </div>
     </div>
-
     <div v-if="filteredSpots.length === 0" class="text-center text-xl text-gray-500">
       No spots found matching your criteria.
     </div>
 
     <!--Display spots-->
-    <div v-for="spot in spots" :key="spot.ID" class="bg-[#FCF6ED] hover:bg-gray-200 mb-3 ml-3 mr-3 rounded-lg spot-card">
+    <div v-for="spot in spots" :key="spot.ID" class="flex bg-green-800 bg-opacity-10 hover:bg-gray-200 mb-3 ml-3 mr-3 rounded-lg spot-card">
+        <img 
+          :src="spot.photos?.[0]?.URL "
+          alt="Spot Photo"
+          class="w-40 h-25 object-cover rounded-md"
+        />
       <router-link :to="`/spotinfo/${spot.ID}`" class="block text-black px-3 py-3">
         <p class="font-bold text-2xl">{{ spot.Name }}</p>
         <p> {{ spot.city.country.Name }}, {{ spot.city.Name }}, {{ spot.Street }}
@@ -59,12 +65,12 @@ export default {
   name: 'HomePage',
   data() {
     return {
-      userInfo: {}, // Define userInfo here
+      userInfo: {}, 
       spots: [], // All spots fetched from backend
       filteredSpots: [], // Spots that match the search and filter criteria
       searchQuery: '', // Search input for spot name
       searchByCountry: '', // Country ID for filtering spots
-      priceSortOrder: '', // Sort by price (asc or desc)
+      priceSortOrder: '', // Sort by price 
       countries: [], // Array to hold the fetched countries
     };
   },
@@ -83,12 +89,12 @@ export default {
             'Authorization': `Bearer ${token}`, // Send token in Authorization header
           },
         })
-          .then(response => response.json())
+          .then(response => response.json()) // Parse the JSON response
           .then(data => {
             if (data.error) {
               console.error(data.error);
             } else {
-              this.userInfo = data; // Display user info
+              this.userInfo = data; // save user info to 'userInfo'
             }
           })
           .catch(error => {
@@ -97,8 +103,8 @@ export default {
       }
     },
     fetchCountries() {
-      fetch('http://localhost:3000/countries') // Adjust the URL to fetch countries
-        .then(response => response.json())
+      fetch('http://localhost:3000/countries') 
+        .then(response => response.json()) // Parse the JSON response
         .then(data => {
           this.countries = data; // Store the countries in the 'countries' array
         })
@@ -110,30 +116,33 @@ export default {
       this.$router.push('/profile');
     },
     fetchAllSpots() {
-    let url = 'http://localhost:3000/spots/filterspots?';
+      let url = 'http://localhost:3000/spots/filterspots?';
 
-    if (this.searchQuery) {
-      url += `searchQuery=${this.searchQuery}&`;
-    }
+      //if user entered search query, append it to the URL
+      if (this.searchQuery) {
+        url += `searchQuery=${this.searchQuery}&`;
+      }
 
-    if (this.searchByCountry) {
-      url += `countryId=${this.searchByCountry}&`;
-    }
+      //if user selected a country, append it to the URL
+      if (this.searchByCountry) {
+        url += `countryId=${this.searchByCountry}&`;
+      }
 
-    if (this.priceSortOrder) {
-      url += `priceSortOrder=${this.priceSortOrder}&`;
-    }
+      //if user selected a price sort order, append it to the URL
+      if (this.priceSortOrder) {
+        url += `priceSortOrder=${this.priceSortOrder}&`;
+      }
 
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        this.spots = data;
-        this.filteredSpots = data; // Initially, all spots are filtered
-      })
-      .catch(error => {
-        console.error('Error fetching spots:', error);
-      });
-  },
+      fetch(url)
+        .then(response => response.json()) // Parse the JSON response
+        .then(data => {
+          this.spots = data; // Store all fetched spots in 'spots'
+          this.filteredSpots = data; // Initially, all spots are filtered
+        })
+        .catch(error => {
+          console.error('Error fetching spots:', error);
+        });
+    },
 
   searchSpots() {
     this.fetchAllSpots(); // Re-fetch spots when search or filters are applied

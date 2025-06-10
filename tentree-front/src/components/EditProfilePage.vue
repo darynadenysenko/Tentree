@@ -87,57 +87,54 @@
             };
         },
         mounted(){
-            this.fetchUserInfo();
-
-            
+            this.fetchUserInfo();            
         },
         methods: {
             updatePassword() {
-            // Check if all fields are filled
-            if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
-                alert('Please fill out all fields.');
-                return;  // Exit if any field is empty
-            }
+                // Check if all fields are filled
+                if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
+                    alert('Please fill out all fields.');
+                    return;  // Exit if any field is empty
+                }
 
+                // Check if new password is the same as the current password
+                if (this.currentPassword === this.newPassword) {
+                    alert('New password cannot be the same as the current password.');
+                    return;  // Exit if new password is the same as the current password
+                }
 
-            // Check if new password is the same as the current password
-            if (this.currentPassword === this.newPassword) {
-                alert('New password cannot be the same as the current password.');
-                return;  // Exit if new password is the same as the current password
-            }
+                // Check if new password and confirm password match
+                if (this.newPassword !== this.confirmPassword) {
+                    alert('New password and confirm password do not match.');
+                    return;  // Exit if new password and confirm password don't match
+                }
 
-            // Check if new password and confirm password match
-            if (this.newPassword !== this.confirmPassword) {
-                alert('New password and confirm password do not match.');
-                return;  // Exit if new password and confirm password don't match
-            }
+                // Password validation: Minimum 8 characters, must contain both uppercase, lowercase, and numbers
+                const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
-              // Password validation: Minimum 8 characters, must contain both uppercase, lowercase, and numbers
-            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+                if (!passwordPattern.test(this.newPassword)) {
+                    alert('Password must be at least 8 characters long and contain both uppercase and lowercase letters, as well as numbers.');
+                    return;  // Exit if password does not meet the required format
+                }
 
-            if (!passwordPattern.test(this.newPassword)) {
-            alert('Password must be at least 8 characters long and contain both uppercase and lowercase letters, as well as numbers.');
-            return;  // Exit if password does not meet the required format
-            }
-
-            // Send request to backend to update the password
-            fetch('http://localhost:3000/users/update-password', {
-                method: 'PATCH',
-                headers: {
-                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-                'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                currentPassword: this.currentPassword,
-                newPassword: this.newPassword,
-                }),
-            })
-                .then(response => response.json())
+                // Send request to backend to update the password
+                fetch('http://localhost:3000/users/update-password', {
+                    method: 'PATCH',
+                    headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                    'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({  //turn currentPassword and newPassword into a JSON object
+                        currentPassword: this.currentPassword,
+                        newPassword: this.newPassword,
+                    }),
+                })
+                .then(response => response.json()) //After the server responds, convert the response from JSON text to a JavaScript object
                 .then(data => {
                 if (data.error) {
                     console.error(data.error);
                     alert(data.error);    
-                } else {
+                } else { 
                     alert('Password updated successfully!');
                     this.currentPassword = '';
                     this.newPassword = '';
@@ -145,9 +142,10 @@
                 }
                 })
                 .catch(error => {
-                console.error('Error updating password:', error);
+                    console.error('Error updating password:', error);
                 });
             },
+
             saveChanges() {
                 const updatedData = {};  // Object to hold the updated fields
 
@@ -175,18 +173,18 @@
                     'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                     'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(updatedData),  // Only send the changed fields
+                    body: JSON.stringify(updatedData),  // Convert updatedData to JSON
                 })
-                .then(response => response.json())
+                .then(response => response.json()) //After the server responds, convert the response from JSON text to a JavaScript object
                 .then(data => {
                     if (data.error) {
-                    console.error(data.error);
+                        console.error(data.error);
                     } else {
-                    this.userInfo = data;  // Update user info after saving
-                    alert('Profile updated successfully!');
-                    this.firstName = '';
-                    this.lastName = '';
-                    this.email = '';
+                        this.userInfo = data;  // Update user info after saving
+                        alert('Profile updated successfully!');
+                        this.firstName = '';
+                        this.lastName = '';
+                        this.email = '';
                     }
                 })
                 .catch(error => {
@@ -205,12 +203,12 @@
                     'Authorization': `Bearer ${token}`,  // Send token in Authorization header
                 },
                 })
-                .then(response => response.json())
+                .then(response => response.json()) //When server responds, convert the response from JSON into a JavaScript object
                 .then(data => {
                 if (data.error) {
                     console.error(data.error);
                 } else {
-                    this.userInfo = data;  // Display user info
+                    this.userInfo = data;  // save user info to the component's data
                 }
                 })
                 .catch(error => {

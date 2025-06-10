@@ -5,31 +5,7 @@ const prisma = new PrismaClient();
 const authenticateToken = require('../middleware/authMiddleware');
 
 
-/*router.get('/:spotId', async (req, res) => {
-  const spotId = parseInt(req.params.spotId); // Extract spotId from URL
-
-  try {
-    const availability = await prisma.availability.findMany({
-      where: {
-        CampingSpot_ID: spotId,
-        IsAvailable: true,  // Only show available dates
-      },
-      select: {
-        Date: true,  // Return only the Date
-      },
-    });
-
-    const formattedAvailability = availability.map((item) => ({
-      start: item.Date.toISOString().split('T')[0],  // Format as YYYY-MM-DD
-      end: item.Date.toISOString().split('T')[0],    // Single date event, so end is same as start
-    }));
-
-    res.json(formattedAvailability);  // Send formatted availability data
-  } catch (error) {
-    console.error('Error fetching availability:', error);
-    res.status(500).json({ error: 'Failed to fetch availability' });
-  }
-});*/
+// Get availability for a specific camping spot
 router.get('/:campingSpotId', async (req, res) => {
   const { campingSpotId } = req.params;
 
@@ -38,39 +14,13 @@ router.get('/:campingSpotId', async (req, res) => {
       where: { CampingSpot_ID: Number(campingSpotId) },
     });
 
-    res.json(availability);
+    res.json(availability); // send the availability as JSON response
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch availability' });
   }
 });
 
-
-// GET all available dates for a specific camping spot
-/*router.get('/:spotId', async (req, res) => {
-  const spotId = parseInt(req.params.spotId);
-
-  try {
-    const availability = await prisma.availability.findMany({
-      where: {
-        CampingSpot_ID: spotId,
-        IsAvailable: true,  // Only show available dates
-      },
-      orderBy: {
-        Date: 'asc'
-      }
-    });
-
-    const formattedAvailability = availability.map((item) => ({
-      date: item.Date.toISOString().split('T')[0],  // Format as YYYY-MM-DD
-    }));
-
-    res.json(formattedAvailability);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch availability' });
-  }
-});*/
 
 // Set dates available or unavailable for a camping spot
 router.put('/:spotId', authenticateToken, async (req, res) => {
@@ -89,9 +39,10 @@ router.put('/:spotId', authenticateToken, async (req, res) => {
       const isAvailable = update.IsAvailable;
 
       if (!update.Date || typeof isAvailable !== 'boolean' || isNaN(parsedDate.getTime())) {
-        continue; // skip invalid items
+        continue; // skip if the date is invalid or isAvailable is not a boolean
       }
 
+      // Check if the availability for this date already exists
       const existing = await prisma.availability.findFirst({
         where: {
           CampingSpot_ID: spotId,
@@ -100,6 +51,8 @@ router.put('/:spotId', authenticateToken, async (req, res) => {
       });
 
       let result;
+      
+      // If it exists, update it; otherwise, create a new entry
       if (existing) {
         result = await prisma.availability.update({
           where: { ID: existing.ID },

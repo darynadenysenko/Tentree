@@ -31,7 +31,7 @@ model availability {
   CampingSpot_ID Int?
   Date           DateTime?    @db.Date
   IsAvailable    Boolean?
-  campingspot    campingspot? @relation(fields: [CampingSpot_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "availability_ibfk_1")
+  campingspot    campingspot? @relation(fields: [CampingSpot_ID], references: [ID], onDelete: Cascade, onUpdate: NoAction, map: "availability_ibfk_1")
 
   @@index([CampingSpot_ID], map: "CampingSpot_ID")
 }
@@ -46,18 +46,20 @@ model booking {
   Status_ID      Int?
   CreatedAt      DateTime?    @default(now()) @db.DateTime(0)
   user           user?        @relation(fields: [User_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "booking_ibfk_1")
-  campingspot    campingspot? @relation(fields: [CampingSpot_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "booking_ibfk_2")
+  campingspot    campingspot? @relation(fields: [CampingSpot_ID], references: [ID], onDelete: Cascade, onUpdate: NoAction, map: "booking_ibfk_2")
   status         status?      @relation(fields: [Status_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "booking_ibfk_3")
+  review         reviews?     @relation("BookingReview")
 
   @@index([CampingSpot_ID], map: "CampingSpot_ID")
   @@index([Status_ID], map: "Status_ID")
   @@index([User_ID], map: "User_ID")
+  
 }
 
 model camping_spot_amenities {
   CampingSpot_ID Int
   Amenity_ID     Int
-  campingspot    campingspot @relation(fields: [CampingSpot_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "camping_spot_amenities_ibfk_1")
+  campingspot    campingspot @relation(fields: [CampingSpot_ID], references: [ID], onDelete: Cascade, onUpdate: NoAction, map: "camping_spot_amenities_ibfk_1")
   amenities      amenities   @relation(fields: [Amenity_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "camping_spot_amenities_ibfk_2")
 
   @@id([CampingSpot_ID, Amenity_ID])
@@ -115,11 +117,13 @@ model reviews {
   ID             Int          @id @default(autoincrement())
   User_ID        Int?
   CampingSpot_ID Int?
+  Booking_ID     Int?         @unique
   Rating         Int?
   Comment        String?      @db.Text
   CreatedAt      DateTime?    @default(now()) @db.DateTime(0)
   user           user?        @relation(fields: [User_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "reviews_ibfk_1")
-  campingspot    campingspot? @relation(fields: [CampingSpot_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "reviews_ibfk_2")
+  campingspot    campingspot? @relation(fields: [CampingSpot_ID], references: [ID], onDelete: Cascade, onUpdate: NoAction, map: "reviews_ibfk_2")
+  booking        booking?     @relation("BookingReview", fields: [Booking_ID], references: [ID]) 
 
   @@index([CampingSpot_ID], map: "CampingSpot_ID")
   @@index([User_ID], map: "User_ID")

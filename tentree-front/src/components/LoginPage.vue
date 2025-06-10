@@ -26,6 +26,12 @@
                         </router-link>
                 </div>
 
+                <!-- Error Message -->
+                <div v-if="errorMessage" class="text-red-600 text-sm text-center">
+                    {{ errorMessage }}
+                </div>
+
+
                 <!-- Log In Button -->
                 <div>
                     <button type="submit" class="w-full py-2 px-4 bg-[#16461A] text-white rounded-md hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
@@ -60,27 +66,30 @@ export default {
         };
     },
     methods: { 
+
         submitForm() {
+            //clean any previous login data
             localStorage.removeItem('authToken');
             localStorage.removeItem('userInfo');
+
             // Send login request to the backend
             fetch('http://localhost:3000/auth/login', {  
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
+                body: JSON.stringify({  // Send email and password as JSON
                     Email: this.email,
                     Password: this.password,
                 }),
             })
-            .then((response) => response.json())
+            .then((response) => response.json()) // Parse the JSON response
             .then((data) => {
                 if (data.token) {
                     // Store the JWT token in localStorage
                     localStorage.setItem('authToken', data.token);
 
-                    // Optionally, store user info as well (if needed)
+                    // Store user info 
                     localStorage.setItem('userInfo', JSON.stringify(data.user));
 
                     // Redirect to home page after successful login
@@ -95,11 +104,11 @@ export default {
             });
         },     
         goToHomePage() {
-        this.$router.push('/home');  
+            this.$router.push('/home');  
         },
         goToRegistration() {
             this.$router.push('/registration');  
-      },
+        },
     }
   };
 </script>
